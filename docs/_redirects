@@ -16,6 +16,3 @@
 /pages/protein_proxy   /pages/protein_proxy.html   200
 /pages/cai             /pages/cai.html             200
 /pages/lcai            /pages/lcai.html            200
-
-# Root → dashboard
-/                      /index.html                 200
