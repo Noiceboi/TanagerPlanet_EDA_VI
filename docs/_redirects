@@ -1,18 +1,2 @@
-# SPA-style fallback: map clean URLs to HTML pages
-/pages/ndvi            /pages/ndvi.html            200
-/pages/psri            /pages/psri.html            200
-/pages/rep             /pages/rep.html             200
-/pages/pri             /pages/pri.html             200
-/pages/ari             /pages/ari.html             200
-/pages/cri550          /pages/cri550.html          200
-/pages/cri700          /pages/cri700.html          200
-/pages/mcari           /pages/mcari.html           200
-/pages/mcari_osavi     /pages/mcari_osavi.html     200
-/pages/wbi             /pages/wbi.html             200
-/pages/wi              /pages/wi.html              200
-/pages/msi             /pages/msi.html             200
-/pages/ndli            /pages/ndli.html            200
-/pages/ndni            /pages/ndni.html            200
-/pages/protein_proxy   /pages/protein_proxy.html   200
-/pages/cai             /pages/cai.html             200
-/pages/lcai            /pages/lcai.html            200
+# Cloudflare Workers Assets serves .html files automatically for clean URLs.
+# No explicit rewrites needed — /pages/wbi → wbi.html is handled natively.
