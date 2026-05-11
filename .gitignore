@@ -1,0 +1,13 @@
+# Large raw data files — too big for GitHub (>100MB each)
+Planet_Data/*.h5
+Planet_Data/*.hdf5
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

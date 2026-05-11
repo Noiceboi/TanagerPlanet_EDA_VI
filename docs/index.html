@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperspectral EDA — Vietnam Planet Tanager</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <style>
+    body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+    .navbar-brand { font-weight: 700; letter-spacing: .5px; }
+    .hero { background: linear-gradient(135deg, #1a3a4a 0%, #0d6e6e 100%); color: #fff; padding: 2.5rem 1rem 2rem; }
+    .hero h1 { font-size: 2rem; font-weight: 800; }
+    .hero p { opacity: .85; max-width: 720px; }
+    .index-card { transition: box-shadow .2s; border: none; }
+    .index-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.15); }
+    .index-card .card-header { font-weight: 700; font-size: .85rem; letter-spacing: .5px; }
+    .overview-img { width: 100%; border-radius: 6px; cursor: pointer; }
+    .ds-badge { font-size: .78rem; }
+    footer { background: #1a3a4a; color: rgba(255,255,255,.65); padding: 1.2rem; text-align: center; font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html">🛰 Hyperspectral EDA</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navmenu">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link active" href="index.html">Dashboard</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Vegetation</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pages/ndvi.html">NDVI — Vegetation Density</a></li>
+            <li><a class="dropdown-item" href="pages/psri.html">PSRI — Senescence</a></li>
+            <li><a class="dropdown-item" href="pages/rep.html">REP — Red Edge Position</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Pigments</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pages/pri.html">PRI — Photochemical</a></li>
+            <li><a class="dropdown-item" href="pages/ari.html">ARI — Anthocyanin</a></li>
+            <li><a class="dropdown-item" href="pages/cri550.html">CRI550 — Carotenoid 550</a></li>
+            <li><a class="dropdown-item" href="pages/cri700.html">CRI700 — Carotenoid 700</a></li>
+            <li><a class="dropdown-item" href="pages/mcari.html">MCARI — Chlorophyll</a></li>
+            <li><a class="dropdown-item" href="pages/mcari_osavi.html">MCARI/OSAVI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Water &amp; Stress</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pages/wbi.html">WBI — Water Band</a></li>
+            <li><a class="dropdown-item" href="pages/wi.html">WI — Water Index</a></li>
+            <li><a class="dropdown-item" href="pages/msi.html">MSI — Moisture Stress</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Carbon / N</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pages/ndli.html">NDLI — Lignin</a></li>
+            <li><a class="dropdown-item" href="pages/ndni.html">NDNI — Nitrogen</a></li>
+            <li><a class="dropdown-item" href="pages/protein_proxy.html">Protein Proxy</a></li>
+            <li><a class="dropdown-item" href="pages/cai.html">CAI — Cellulose</a></li>
+            <li><a class="dropdown-item" href="pages/lcai.html">LCAI — Lignin-Cellulose</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <h1>Vietnam Hyperspectral EDA Dashboard</h1>
+    <p>Exploratory data analysis of Planet Tanager hyperspectral imagery (426 bands, 376–2499 nm) across two acquisition dates. Explore 17 spectral vegetation indices with interactive reflectance charts and mathematical formula explorers.</p>
+    <div class="mt-3 d-flex gap-2 flex-wrap">
+      <span class="badge bg-light text-dark fs-6">📅 March 01 2025</span>
+      <span class="badge bg-light text-dark fs-6">📅 April 07 2025</span>
+      <span class="badge bg-info text-dark fs-6">426 bands</span>
+      <span class="badge bg-info text-dark fs-6">376–2499 nm</span>
+      <span class="badge bg-warning text-dark fs-6">17 indices</span>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- Dataset cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm" id="card-20250301_143913_32_4001">
+        <div class="card-header bg-primary text-white">Dataset 1 — <span class="ds-label">March 01 2025</span></div>
+        <div class="card-body">
+          <table class="table table-sm table-borderless mb-2">
+            <tbody>
+              <tr><th scope="row" class="text-muted">Cube shape</th><td class="ds-shape font-monospace">—</td></tr>
+              <tr><th scope="row" class="text-muted">REP mean</th><td class="ds-rep">—</td></tr>
+              <tr><th scope="row" class="text-muted">PCA variance</th><td class="ds-pca">—</td></tr>
+              <tr><th scope="row" class="text-muted">Anomaly P99</th><td class="ds-anomaly">—</td></tr>
+            </tbody>
+          </table>
+          <a href="images/maps/20250301_143913_32_4001/02_index_maps.png" target="_blank">
+            <img class="overview-img" src="images/maps/20250301_143913_32_4001/02_index_maps.png"
+                 alt="Index Maps Overview March 2025" />
+          </a>
+          <p class="text-muted small mt-2 mb-0">All-index grid map. Click to enlarge.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm" id="card-20250407_035527_47_4001">
+        <div class="card-header bg-success text-white">Dataset 2 — <span class="ds-label">April 07 2025</span></div>
+        <div class="card-body">
+          <table class="table table-sm table-borderless mb-2">
+            <tbody>
+              <tr><th scope="row" class="text-muted">Cube shape</th><td class="ds-shape font-monospace">—</td></tr>
+              <tr><th scope="row" class="text-muted">REP mean</th><td class="ds-rep">—</td></tr>
+              <tr><th scope="row" class="text-muted">PCA variance</th><td class="ds-pca">—</td></tr>
+              <tr><th scope="row" class="text-muted">Anomaly P99</th><td class="ds-anomaly">—</td></tr>
+            </tbody>
+          </table>
+          <a href="images/maps/20250407_035527_47_4001/02_index_maps.png" target="_blank">
+            <img class="overview-img" src="images/maps/20250407_035527_47_4001/02_index_maps.png"
+                 alt="Index Maps Overview April 2025" />
+          </a>
+          <p class="text-muted small mt-2 mb-0">All-index grid map. Click to enlarge.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Index grid -->
+  <h4 class="mb-3 fw-bold">Spectral Index Explorer</h4>
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+
+    <!-- Vegetation -->
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-success text-white">Vegetation</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/ndvi.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/NDVI.png" class="img-fluid rounded mb-1" alt="NDVI" />
+          <div class="fw-bold">NDVI</div>
+          <small class="text-muted">Vegetation Density</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-success text-white">Senescence</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/psri.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/PSRI.png" class="img-fluid rounded mb-1" alt="PSRI" />
+          <div class="fw-bold">PSRI</div>
+          <small class="text-muted">Plant Senescence</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-success text-white">Red Edge</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/rep.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/REP.png" class="img-fluid rounded mb-1" alt="REP" />
+          <div class="fw-bold">REP</div>
+          <small class="text-muted">Red Edge Position</small>
+        </a>
+      </div>
+    </div></div>
+
+    <!-- Pigments -->
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Pigment</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/pri.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/PRI.png" class="img-fluid rounded mb-1" alt="PRI" />
+          <div class="fw-bold">PRI</div>
+          <small class="text-muted">Photochemical</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Pigment</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/ari.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/ARI.png" class="img-fluid rounded mb-1" alt="ARI" />
+          <div class="fw-bold">ARI</div>
+          <small class="text-muted">Anthocyanin</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Pigment</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/cri550.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/CRI550.png" class="img-fluid rounded mb-1" alt="CRI550" />
+          <div class="fw-bold">CRI550</div>
+          <small class="text-muted">Carotenoid 550</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Pigment</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/cri700.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/CRI700.png" class="img-fluid rounded mb-1" alt="CRI700" />
+          <div class="fw-bold">CRI700</div>
+          <small class="text-muted">Carotenoid 700</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Chlorophyll</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/mcari.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/MCARI.png" class="img-fluid rounded mb-1" alt="MCARI" />
+          <div class="fw-bold">MCARI</div>
+          <small class="text-muted">Chlorophyll Abs.</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-warning text-dark">Chlorophyll</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/mcari_osavi.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/MCARI_OSAVI.png" class="img-fluid rounded mb-1" alt="MCARI_OSAVI" />
+          <div class="fw-bold">MCARI/OSAVI</div>
+          <small class="text-muted">Chlorophyll/Canopy</small>
+        </a>
+      </div>
+    </div></div>
+
+    <!-- Water -->
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-info text-dark">Water</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/wbi.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/WBI.png" class="img-fluid rounded mb-1" alt="WBI" />
+          <div class="fw-bold">WBI</div>
+          <small class="text-muted">Water Band</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-info text-dark">Water</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/wi.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/WI.png" class="img-fluid rounded mb-1" alt="WI" />
+          <div class="fw-bold">WI</div>
+          <small class="text-muted">Water Index</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-info text-dark">Stress</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/msi.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/MSI.png" class="img-fluid rounded mb-1" alt="MSI" />
+          <div class="fw-bold">MSI</div>
+          <small class="text-muted">Moisture Stress</small>
+        </a>
+      </div>
+    </div></div>
+
+    <!-- Carbon/N -->
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-secondary text-white">Carbon</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/ndli.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/NDLI.png" class="img-fluid rounded mb-1" alt="NDLI" />
+          <div class="fw-bold">NDLI</div>
+          <small class="text-muted">Lignin</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-secondary text-white">Nitrogen</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/ndni.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/NDNI.png" class="img-fluid rounded mb-1" alt="NDNI" />
+          <div class="fw-bold">NDNI</div>
+          <small class="text-muted">Nitrogen Index</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-secondary text-white">Protein</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/protein_proxy.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/PROTEIN_PROXY_2180_2100.png" class="img-fluid rounded mb-1" alt="PROTEIN" />
+          <div class="fw-bold">Protein</div>
+          <small class="text-muted">Proxy 2180/2100</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-secondary text-white">Carbon</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/cai.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/CAI.png" class="img-fluid rounded mb-1" alt="CAI" />
+          <div class="fw-bold">CAI</div>
+          <small class="text-muted">Cellulose Abs.</small>
+        </a>
+      </div>
+    </div></div>
+
+    <div class="col"><div class="card index-card h-100 shadow-sm">
+      <div class="card-header bg-secondary text-white">Carbon</div>
+      <div class="card-body p-2 text-center">
+        <a href="pages/lcai.html" class="stretched-link text-decoration-none text-dark">
+          <img src="images/maps/20250301_143913_32_4001/LCAI.png" class="img-fluid rounded mb-1" alt="LCAI" />
+          <div class="fw-bold">LCAI</div>
+          <small class="text-muted">Lignin-Cellulose</small>
+        </a>
+      </div>
+    </div></div>
+
+  </div><!-- /row -->
+
+</div><!-- /container -->
+
+<footer>
+  Planet Tanager Hyperspectral EDA · Vietnam · 2025 &nbsp;|&nbsp;
+  426 bands · 376–2499 nm · 17 spectral indices
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/chart-logic.js"></script>
+<script>initDashboard();</script>
+</body>
+</html>

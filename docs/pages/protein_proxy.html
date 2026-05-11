@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protein Proxy (R2180/R2100) | Hyperspectral EDA</title>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-- MathJax 3 — render LaTeX formulas (pure LaTeX, no HTML inside $$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
+        tags: 'none',
+      },
+      svg: { fontCache: 'global', scale: 1.1 },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+  <!-- base path for data fetches -->
+  <meta name="data-base" content="../data/" />
+  <style>
+    body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+    .navbar-brand { font-weight: 700; }
+    .formula-box {
+      background: #fff; border: 1px solid #dee2e6; border-radius: 8px;
+      padding: 1.5rem; margin-bottom: 1rem;
+    }
+    /* Formula rendered by MathJax — no spans inside LaTeX, stays clean */
+    .formula-box .formula-main {
+      font-size: 1.5rem; text-align: center;
+      margin: 1.2rem 0 0.8rem;
+      min-height: 2.5rem;
+    }
+    /* Variable chips — interactive, outside the MathJax block */
+    #variable-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+    .var-chip {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .3em .7em; border-radius: 20px;
+      font-family: 'Courier New', monospace; font-size: .9rem; font-weight: 600;
+      cursor: pointer; user-select: none;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .var-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 10px rgba(0,0,0,.18);
+    }
+    .chip-nm { font-size: .75rem; font-weight: 400; opacity: .75; }
+    .band-legend td, .band-legend th { vertical-align: middle; padding: .25rem .5rem; }
+    #reflectance-plot { width: 100%; height: 420px; }
+    #index-map { width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.12); }
+    .hint-text { font-size: .82rem; color: #6c757d; }
+    footer { background: #1a3a4a; color: rgba(255,255,255,.65); padding: 1.2rem; text-align: center; font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="../index.html">🛰 Hyperspectral EDA</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navmenu">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="../index.html">Dashboard</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Vegetation</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="ndvi.html">NDVI</a></li>
+            <li><a class="dropdown-item" href="psri.html">PSRI</a></li>
+            <li><a class="dropdown-item" href="rep.html">REP</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Pigments</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pri.html">PRI</a></li>
+            <li><a class="dropdown-item" href="ari.html">ARI</a></li>
+            <li><a class="dropdown-item" href="cri550.html">CRI550</a></li>
+            <li><a class="dropdown-item" href="cri700.html">CRI700</a></li>
+            <li><a class="dropdown-item" href="mcari.html">MCARI</a></li>
+            <li><a class="dropdown-item" href="mcari_osavi.html">MCARI/OSAVI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Water &amp; Stress</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="wbi.html">WBI</a></li>
+            <li><a class="dropdown-item" href="wi.html">WI</a></li>
+            <li><a class="dropdown-item" href="msi.html">MSI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Carbon / N</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="ndli.html">NDLI</a></li>
+            <li><a class="dropdown-item" href="ndni.html">NDNI</a></li>
+            <li><a class="dropdown-item" href="protein_proxy.html">Protein Proxy</a></li>
+            <li><a class="dropdown-item" href="cai.html">CAI</a></li>
+            <li><a class="dropdown-item" href="lcai.html">LCAI</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Page header -->
+<div class="bg-dark text-white py-3 px-4">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="../index.html" class="text-light">Dashboard</a></li>
+        <li class="breadcrumb-item text-secondary">Carbon/N</li>
+        <li class="breadcrumb-item active text-white">PROTEIN_PROXY_2180_2100</li>
+      </ol>
+    </nav>
+    <h4 class="mb-0" id="index-title">Protein Proxy (R2180/R2100)</h4>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+
+    <!-- Left column: Map + dataset selector -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-bold">Spatial Map</span>
+          <select class="form-select form-select-sm w-auto" id="dataset-select">
+            <option value="20250301_143913_32_4001">March 01 2025</option>
+            <option value="20250407_035527_47_4001">April 07 2025</option>
+          </select>
+        </div>
+        <div class="card-body p-2">
+          <img id="index-map" src="" alt="PROTEIN_PROXY_2180_2100 map" />
+        </div>
+      </div>
+      <!-- Dataset stats badges -->
+      <div id="dataset-info" class="d-flex flex-wrap gap-1 mb-3"></div>
+    </div>
+
+    <!-- Right column: Formula + Chart -->
+    <div class="col-lg-7">
+
+      <!-- Formula Explorer -->
+      <div class="formula-box mb-3">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <h6 class="fw-bold mb-0">Formula Explorer</h6>
+          <span class="hint-text">💡 Hover over a variable chip to highlight its band on the chart</span>
+        </div>
+        <!-- Pure LaTeX — MathJax renders this cleanly with no HTML contamination -->
+        <div class="formula-main" id="formula-display">
+$$\text{Protein Proxy} = \frac{R_{2180}}{R_{2100}}$$
+        </div>
+        <p class="text-muted small mb-2" id="index-description"></p>
+        <!-- Variable chips — built dynamically by chart-logic.js, hover triggers band highlight -->
+        <div class="mt-2">
+          <small class="fw-semibold text-muted d-block mb-1">INTERACTIVE VARIABLES</small>
+          <div id="variable-chips"></div>
+        </div>
+        <!-- Band legend -->
+        <div class="mt-3">
+          <small class="fw-semibold text-muted">BAND LEGEND</small>
+          <table class="table table-sm band-legend mt-1 mb-0">
+            <tbody id="band-legend"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Reflectance Chart -->
+      <div class="card shadow-sm">
+        <div class="card-header fw-bold">Mean Reflectance Spectrum</div>
+        <div class="card-body p-2">
+          <div id="reflectance-plot"></div>
+          <p class="hint-text mt-1 mb-0 px-1">Savitzky-Golay smoothed mean spectrum. Coloured bands correspond to the formula variables above.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  Planet Tanager Hyperspectral EDA · Vietnam · 2025 &nbsp;|&nbsp; PROTEIN_PROXY_2180_2100
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/chart-logic.js"></script>
+<script>initIndexPage('PROTEIN_PROXY_2180_2100');</script>
+</body>
+</html>
