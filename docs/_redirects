@@ -1,6 +1,3 @@
-# Canonical HTML redirects (explicit, no auto HTML handling)
-/ /index.html 302
-
 /pages/ndvi /pages/ndvi.html 302
 /pages/psri /pages/psri.html 302
 /pages/rep /pages/rep.html 302
