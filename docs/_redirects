@@ -1,0 +1,20 @@
+# Canonical HTML redirects (explicit, no auto HTML handling)
+/ /index.html 302
+
+/pages/ndvi /pages/ndvi.html 302
+/pages/psri /pages/psri.html 302
+/pages/rep /pages/rep.html 302
+/pages/pri /pages/pri.html 302
+/pages/ari /pages/ari.html 302
+/pages/cri550 /pages/cri550.html 302
+/pages/cri700 /pages/cri700.html 302
+/pages/mcari /pages/mcari.html 302
+/pages/mcari_osavi /pages/mcari_osavi.html 302
+/pages/wbi /pages/wbi.html 302
+/pages/wi /pages/wi.html 302
+/pages/msi /pages/msi.html 302
+/pages/ndli /pages/ndli.html 302
+/pages/ndni /pages/ndni.html 302
+/pages/protein_proxy /pages/protein_proxy.html 302
+/pages/cai /pages/cai.html 302
+/pages/lcai /pages/lcai.html 302
