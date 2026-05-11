@@ -1,2 +1,0 @@
-# Cloudflare Workers Assets serves .html files automatically for clean URLs.
-# No explicit rewrites needed — /pages/wbi → wbi.html is handled natively.

@@ -6,8 +6,7 @@
     "enabled": true
   },
   "assets": {
-    "directory": "docs",
-    "html_handling": "none"
+    "directory": "docs"
   },
   "compatibility_flags": [
     "nodejs_compat"
