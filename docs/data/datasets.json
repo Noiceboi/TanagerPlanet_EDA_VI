@@ -23,7 +23,7 @@
       "cardLabel": "Dataset 2"
     },
     "20250407_035451_00_4001": {
-      "label": "April 07 2025",
+      "label": "Phuong Hiep Binh, Thu Duc, HCMC",
       "jsonFile": "mean_spectra_20250407_035451_00_4001.json",
       "cubeShape": "(426, 691, 809)",
       "repMean": "735.98 nm",
@@ -31,7 +31,7 @@
       "anomalyThr": "4.09",
       "date": "2025-04-07",
       "cardHeaderClass": "bg-info text-dark",
-      "cardLabel": "Dataset 3"
+      "cardLabel": "Hiep Binh Phuong, Thu Duc"
     }
   },
   "_meta": {
