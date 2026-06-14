@@ -338,7 +338,7 @@ let _spectraCache = {}; // { datasetKey: { wavelengths, mean_reflectance } }
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchSpectra(datasetKey) {
   if (_spectraCache[datasetKey]) return _spectraCache[datasetKey];
-  const filename = DATASETS[datasetKey].jsonFile;
+  const filename = DATASETS[datasetKey]?.jsonFile ?? `mean_spectra_${datasetKey}.json`;
   // Support both root-relative and relative paths
   const basePath = document.querySelector("meta[name='data-base']")
     ? document.querySelector("meta[name='data-base']").content
@@ -518,7 +518,9 @@ function updateDataset(newDatasetKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 async function initIndexPage(indexName) {
   await loadDatasetsRegistry();
-  _currentDataset = Object.keys(DATASETS)[0] || null;
+  _currentDataset = Object.keys(DATASETS)[0]
+    || document.getElementById("dataset-select")?.options[0]?.value
+    || null;
   _currentIndex = indexName;
   const cfg = INDEX_CONFIG[indexName];
   if (!cfg) return;
