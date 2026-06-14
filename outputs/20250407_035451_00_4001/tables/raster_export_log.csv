@@ -11,6 +11,7 @@ MCARI_OSAVI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters
 WBI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\WBI.tif
 WI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\WI.tif
 MSI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\MSI.tif
+HDWI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\HDWI.tif
 NDLI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\NDLI.tif
 NDNI,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\NDNI.tif
 PROTEIN_PROXY_2180_2100,D:\EDA_VietNam_Hyperspectral\outputs\20250407_035451_00_4001\rasters\PROTEIN_PROXY_2180_2100.tif

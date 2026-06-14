@@ -109,6 +109,10 @@ def _compute_lcai(R, wavelengths, mean_spec_sg):
     return part1 + part2
 
 
+def _compute_hdwi(R, wavelengths, mean_spec_sg):
+    return safe_div(R["R_572"] - R["R_420"], R["R_572"] + R["R_420"])
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Dispatch registry — key must match indices.yaml `compute:` field
 # ──────────────────────────────────────────────────────────────────────────────
@@ -125,6 +129,7 @@ _COMPUTE_REGISTRY = {
     "wbi":           _compute_wbi,
     "wi":            _compute_wi,
     "msi":           _compute_msi,
+    "hdwi":          _compute_hdwi,
     "ndli":          _compute_ndli,
     "ndni":          _compute_ndni,
     "protein_proxy": _compute_protein_proxy,

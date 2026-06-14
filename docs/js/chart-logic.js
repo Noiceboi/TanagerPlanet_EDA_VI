@@ -310,6 +310,20 @@ const INDEX_CONFIG = {
       { label: "R1599 (num)", x0: 1593, x1: 1605, color: "rgba(200,120,20,0.3)" },
     ],
   },
+  HDWI: {
+    title: "Hyperspectral Difference Water Index",
+    formula: "\\frac{R_{572} - R_{420}}{R_{572} + R_{420}}",
+    description:
+      "HDWI is designed specifically for hyperspectral data to detect water bodies while mitigating effects of shadows and low-albedo surfaces. Uses narrow visible bands (572 nm green, 420 nm violet).",
+    wikiVars: {
+      R_572: [567, 577],
+      R_420: [415, 425],
+    },
+    bands: [
+      { label: "R572 — Green (num)", x0: 567, x1: 577, color: "rgba(50,200,100,0.3)" },
+      { label: "R420 — Violet (denom)", x0: 415, x1: 425, color: "rgba(120,60,200,0.3)" },
+    ],
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

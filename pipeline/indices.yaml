@@ -307,6 +307,29 @@ indices:
       - {label: "R1599 (num)", x0: 1593, x1: 1605, color: "rgba(200,120,20,0.3)"}
     colormap: cool
 
+  HDWI:
+    compute: hdwi
+    bands_nm:
+      R_572: 572
+      R_420: 420
+    page_file: hdwi
+    nav_category: Water
+    page_title: "HDWI — Hyperspectral Difference Water Index"
+    card_header: Water
+    card_header_class: bg-info text-dark
+    card_short: Water Bodies
+    title: "Hyperspectral Difference Water Index"
+    formula_latex: "$$\\text{HDWI} = \\frac{R_{572} - R_{420}}{R_{572} + R_{420}}$$"
+    formula_inline: "\\frac{R_{572} - R_{420}}{R_{572} + R_{420}}"
+    description: "HDWI is designed specifically for hyperspectral data to detect water bodies while mitigating effects of shadows and low-albedo surfaces. Uses narrow visible bands (572 nm green, 420 nm violet) to exploit the strong absorption of water in the violet region relative to green reflectance."
+    wiki_vars:
+      R_572: [567, 577]
+      R_420: [415, 425]
+    bands:
+      - {label: "R572 — Green (num)", x0: 567, x1: 577, color: "rgba(50,200,100,0.3)"}
+      - {label: "R420 — Violet (denom)", x0: 415, x1: 425, color: "rgba(120,60,200,0.3)"}
+    colormap: Blues
+
   NDLI:
     compute: ndli
     bands_nm:

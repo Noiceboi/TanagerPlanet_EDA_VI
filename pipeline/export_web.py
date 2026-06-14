@@ -136,16 +136,18 @@ def update_datasets_registry(
     var = pca_variance_ratio
     pca_str = " / ".join(f"{v * 100:.1f}%" for v in var[:3])
 
+    existing = datasets.get(run_id, {})
     datasets[run_id] = {
-        "label": label,
+        # Preserve user-customized label/cardLabel if already set
+        "label": existing.get("label", label),
         "jsonFile": f"mean_spectra_{run_id}.json",
         "cubeShape": f"({cube_shape[0]}, {cube_shape[1]}, {cube_shape[2]})",
         "repMean": f"{rep_nm:.2f} nm",
         "pcaVar": pca_str,
         "anomalyThr": f"{anomaly_threshold:.2f}",
         "date": date_str,
-        "cardHeaderClass": card_class,
-        "cardLabel": card_label,
+        "cardHeaderClass": existing.get("cardHeaderClass", card_class),
+        "cardLabel": existing.get("cardLabel", card_label),
     }
 
     registry["_meta"] = {"generated_by": "run_pipeline.py", "schema_version": 1}

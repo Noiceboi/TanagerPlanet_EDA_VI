@@ -154,6 +154,7 @@ TEMPLATE = """\
             <li><a class="dropdown-item" href="wbi.html">WBI</a></li>
             <li><a class="dropdown-item" href="wi.html">WI</a></li>
             <li><a class="dropdown-item" href="msi.html">MSI</a></li>
+            <li><a class="dropdown-item" href="hdwi.html">HDWI</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">
