@@ -1,0 +1,435 @@
+# pipeline/indices.yaml
+# Unified config for all spectral indices.
+# Each entry drives: computation (pipeline/indices.py), web export (colormap/PNGs),
+# page generation (generate_pages.py), and chart interactivity (chart-logic.js).
+#
+# To add a new index:
+#   1. Add entry here with all fields
+#   2. Add _compute_<compute_key>() function in pipeline/indices.py
+#   3. Run: python run_pipeline.py <h5_file>
+#   4. Run: python docs/generate_pages.py
+
+indices:
+
+  NDVI:
+    # --- Computation ---
+    compute: ndvi
+    bands_nm:
+      R_NIR: 800
+      R_Red: 665
+    # --- Page generation ---
+    page_file: ndvi
+    nav_category: Vegetation
+    page_title: "NDVI — Normalized Difference Vegetation Index"
+    card_header: Vegetation
+    card_header_class: bg-success text-white
+    card_short: Vegetation Density
+    # --- Chart / formula explorer ---
+    title: "Normalized Difference Vegetation Index"
+    formula_latex: "$$\\text{NDVI} = \\frac{R_{NIR} - R_{Red}}{R_{NIR} + R_{Red}}$$"
+    formula_inline: "\\frac{R_{NIR} - R_{Red}}{R_{NIR} + R_{Red}}"
+    description: "NDVI measures photosynthetically active vegetation density. Higher values indicate denser, healthier canopy."
+    wiki_vars:
+      R_NIR: [790, 810]
+      R_Red: [660, 680]
+    bands:
+      - {label: "R_Red (670 nm)", x0: 660, x1: 680, color: "rgba(220,50,50,0.25)"}
+      - {label: "R_NIR (800 nm)", x0: 790, x1: 810, color: "rgba(50,160,50,0.25)"}
+    # --- Export ---
+    colormap: RdYlGn
+
+  PSRI:
+    compute: psri
+    bands_nm:
+      R_490: 490
+      R_680: 680
+      R_800: 800
+    page_file: psri
+    nav_category: Vegetation
+    page_title: "PSRI — Plant Senescence Reflectance Index"
+    card_header: Senescence
+    card_header_class: bg-success text-white
+    card_short: Plant Senescence
+    title: "Plant Senescence Reflectance Index"
+    formula_latex: "$$\\text{PSRI} = \\frac{R_{680} - R_{490}}{R_{800}}$$"
+    formula_inline: "\\frac{R_{680} - R_{490}}{R_{800}}"
+    description: "PSRI quantifies the ratio of carotenoids to chlorophyll, indicating leaf aging and senescence."
+    wiki_vars:
+      R_490: [485, 495]
+      R_680: [675, 685]
+      R_800: [795, 805]
+    bands:
+      - {label: "R490 (blue)", x0: 485, x1: 495, color: "rgba(30,100,220,0.25)"}
+      - {label: "R680 (red)", x0: 675, x1: 685, color: "rgba(220,50,50,0.25)"}
+      - {label: "R800 (denom)", x0: 795, x1: 805, color: "rgba(150,50,200,0.25)"}
+    colormap: YlOrRd
+
+  REP:
+    compute: rep_pixel
+    bands_nm:
+      R_670: 670
+      R_700: 700
+      R_740: 740
+      R_780: 780
+    rep_scalar: true
+    page_file: rep
+    nav_category: Vegetation
+    page_title: "REP — Red Edge Position"
+    card_header: Red Edge
+    card_header_class: bg-success text-white
+    card_short: Red Edge Position
+    title: "Red Edge Position"
+    formula_latex: "$$\\lambda_{REP} = 700 + 40 \\cdot \\frac{\\bar{R}_{RE} - R_{700}}{R_{740} - R_{700}}$$"
+    formula_inline: "\\lambda_{REP} = 700 + 40 \\cdot \\frac{\\bar{R}_{RE} - R_{700}}{R_{740} - R_{700}}"
+    description: "REP tracks the inflection point of the red-edge, a proxy for chlorophyll content and canopy stress."
+    wiki_vars:
+      R_700: [695, 705]
+      R_740: [735, 745]
+    bands:
+      - {label: "Red Edge Region", x0: 670, x1: 780, color: "rgba(200,80,80,0.12)"}
+      - {label: "R700", x0: 695, x1: 705, color: "rgba(220,50,50,0.3)"}
+      - {label: "R740", x0: 735, x1: 745, color: "rgba(80,180,80,0.3)"}
+    colormap: RdYlGn
+
+  PRI:
+    compute: pri
+    bands_nm:
+      R_531: 531
+      R_570: 570
+    page_file: pri
+    nav_category: Pigments
+    page_title: "PRI — Photochemical Reflectance Index"
+    card_header: Pigment
+    card_header_class: bg-warning text-dark
+    card_short: Photochemical
+    title: "Photochemical Reflectance Index"
+    formula_latex: "$$\\text{PRI} = \\frac{R_{531} - R_{570}}{R_{531} + R_{570}}$$"
+    formula_inline: "\\frac{R_{531} - R_{570}}{R_{531} + R_{570}}"
+    description: "PRI tracks xanthophyll pigment changes linked to light-use efficiency and photosynthetic stress."
+    wiki_vars:
+      R_531: [526, 536]
+      R_570: [565, 575]
+    bands:
+      - {label: "R531", x0: 526, x1: 536, color: "rgba(50,100,220,0.25)"}
+      - {label: "R570", x0: 565, x1: 575, color: "rgba(230,130,20,0.25)"}
+    colormap: RdYlGn
+
+  ARI:
+    compute: ari
+    bands_nm:
+      R_550: 550
+      R_700: 700
+    page_file: ari
+    nav_category: Pigments
+    page_title: "ARI — Anthocyanin Reflectance Index"
+    card_header: Pigment
+    card_header_class: bg-warning text-dark
+    card_short: Anthocyanin
+    title: "Anthocyanin Reflectance Index"
+    formula_latex: "$$\\text{ARI} = \\frac{1}{R_{550}} - \\frac{1}{R_{700}}$$"
+    formula_inline: "\\frac{1}{R_{550}} - \\frac{1}{R_{700}}"
+    description: "ARI is sensitive to leaf anthocyanin content. High values indicate stress-induced anthocyanin accumulation."
+    wiki_vars:
+      R_550: [545, 555]
+      R_700: [695, 705]
+    bands:
+      - {label: "R550", x0: 545, x1: 555, color: "rgba(50,180,80,0.25)"}
+      - {label: "R700", x0: 695, x1: 705, color: "rgba(180,40,40,0.25)"}
+    colormap: Purples
+
+  CRI550:
+    compute: cri550
+    bands_nm:
+      R_510: 510
+      R_550: 550
+    page_file: cri550
+    nav_category: Pigments
+    page_title: "CRI550 — Carotenoid Reflectance Index"
+    card_header: Pigment
+    card_header_class: bg-warning text-dark
+    card_short: Carotenoid 550
+    title: "Carotenoid Reflectance Index 550"
+    formula_latex: "$$\\text{CRI}_{550} = \\frac{1}{R_{510}} - \\frac{1}{R_{550}}$$"
+    formula_inline: "\\frac{1}{R_{510}} - \\frac{1}{R_{550}}"
+    description: "CRI550 estimates carotenoid content in the visible range."
+    wiki_vars:
+      R_510: [505, 515]
+      R_550: [545, 555]
+    bands:
+      - {label: "R510", x0: 505, x1: 515, color: "rgba(130,50,200,0.25)"}
+      - {label: "R550", x0: 545, x1: 555, color: "rgba(50,180,80,0.25)"}
+    colormap: Greens
+
+  CRI700:
+    compute: cri700
+    bands_nm:
+      R_510: 510
+      R_700: 700
+    page_file: cri700
+    nav_category: Pigments
+    page_title: "CRI700 — Carotenoid Reflectance Index 700"
+    card_header: Pigment
+    card_header_class: bg-warning text-dark
+    card_short: Carotenoid 700
+    title: "Carotenoid Reflectance Index 700"
+    formula_latex: "$$\\text{CRI}_{700} = \\frac{1}{R_{510}} - \\frac{1}{R_{700}}$$"
+    formula_inline: "\\frac{1}{R_{510}} - \\frac{1}{R_{700}}"
+    description: "CRI700 is a stronger carotenoid estimator extending into the red edge."
+    wiki_vars:
+      R_510: [505, 515]
+      R_700: [695, 705]
+    bands:
+      - {label: "R510", x0: 505, x1: 515, color: "rgba(130,50,200,0.25)"}
+      - {label: "R700", x0: 695, x1: 705, color: "rgba(180,40,40,0.25)"}
+    colormap: RdPu
+
+  MCARI:
+    compute: mcari
+    bands_nm:
+      R_550: 550
+      R_670: 670
+      R_700: 700
+    page_file: mcari
+    nav_category: Pigments
+    page_title: "MCARI — Modified Chlorophyll Absorption Ratio"
+    card_header: Chlorophyll
+    card_header_class: bg-warning text-dark
+    card_short: Chlorophyll Abs.
+    title: "Modified Chlorophyll Absorption Ratio Index"
+    formula_latex: "$$\\text{MCARI} = \\left[(R_{700}-R_{670}) - 0.2\\,(R_{700}-R_{550})\\right] \\cdot \\frac{R_{700}}{R_{670}}$$"
+    formula_inline: "\\left[(R_{700}-R_{670}) - 0.2(R_{700}-R_{550})\\right] \\cdot \\frac{R_{700}}{R_{670}}"
+    description: "MCARI is sensitive to chlorophyll absorption while minimising soil and LAI effects."
+    wiki_vars:
+      R_700: [695, 705]
+      R_670: [665, 675]
+      R_550: [545, 555]
+    bands:
+      - {label: "R550", x0: 545, x1: 555, color: "rgba(50,180,80,0.25)"}
+      - {label: "R670", x0: 665, x1: 675, color: "rgba(180,40,40,0.25)"}
+      - {label: "R700", x0: 695, x1: 705, color: "rgba(120,20,20,0.3)"}
+    colormap: YlGn
+
+  MCARI_OSAVI:
+    compute: mcari_osavi
+    bands_nm:
+      R_550: 550
+      R_670: 670
+      R_700: 700
+      R_800: 800
+    page_file: mcari_osavi
+    nav_category: Pigments
+    page_title: "MCARI/OSAVI — Chlorophyll Ratio"
+    card_header: Chlorophyll
+    card_header_class: bg-warning text-dark
+    card_short: Chlorophyll/Canopy
+    title: "MCARI / OSAVI"
+    formula_latex: "$$\\frac{\\text{MCARI}}{\\text{OSAVI}}, \\quad \\text{OSAVI} = \\frac{1.16\\,(R_{800}-R_{670})}{R_{800}+R_{670}+0.16}$$"
+    formula_inline: "\\frac{\\text{MCARI}}{\\text{OSAVI}}"
+    description: "MCARI/OSAVI decouples chlorophyll concentration from canopy structure effects."
+    wiki_vars:
+      R_800: [795, 805]
+      R_670: [665, 675]
+      R_700: [695, 705]
+      R_550: [545, 555]
+    bands:
+      - {label: "R550", x0: 545, x1: 555, color: "rgba(50,180,80,0.25)"}
+      - {label: "R670", x0: 665, x1: 675, color: "rgba(180,40,40,0.25)"}
+      - {label: "R700", x0: 695, x1: 705, color: "rgba(120,20,20,0.3)"}
+      - {label: "R800 (OSAVI)", x0: 795, x1: 805, color: "rgba(80,80,180,0.25)"}
+    colormap: YlGn
+
+  WBI:
+    compute: wbi
+    bands_nm:
+      R_900: 900
+      R_970: 970
+    page_file: wbi
+    nav_category: Water
+    page_title: "WBI — Water Band Index"
+    card_header: Water
+    card_header_class: bg-info text-dark
+    card_short: Water Band
+    title: "Water Band Index"
+    formula_latex: "$$\\text{WBI} = \\frac{R_{900}}{R_{970}}$$"
+    formula_inline: "\\frac{R_{900}}{R_{970}}"
+    description: "WBI is sensitive to leaf water content. Values above 1 indicate good water status."
+    wiki_vars:
+      R_900: [895, 905]
+      R_970: [965, 975]
+    bands:
+      - {label: "R900 (num)", x0: 895, x1: 905, color: "rgba(0,180,220,0.25)"}
+      - {label: "R970 (denom)", x0: 965, x1: 975, color: "rgba(30,60,200,0.25)"}
+    colormap: Blues_r
+
+  WI:
+    compute: wi
+    bands_nm:
+      R_900: 900
+      R_970: 970
+    page_file: wi
+    nav_category: Water
+    page_title: "WI — Water Index"
+    card_header: Water
+    card_header_class: bg-info text-dark
+    card_short: Water Index
+    title: "Water Index"
+    formula_latex: "$$\\text{WI} = \\frac{R_{900}}{R_{970}}$$"
+    formula_inline: "\\frac{R_{900}}{R_{970}}"
+    description: "WI tracks canopy water content via NIR absorption. Higher values indicate higher water content."
+    wiki_vars:
+      R_900: [895, 905]
+      R_970: [965, 975]
+    bands:
+      - {label: "R900", x0: 895, x1: 905, color: "rgba(0,180,220,0.25)"}
+      - {label: "R970", x0: 965, x1: 975, color: "rgba(30,60,200,0.25)"}
+    colormap: Blues_r
+
+  MSI:
+    compute: msi
+    bands_nm:
+      R_819: 819
+      R_1599: 1599
+    page_file: msi
+    nav_category: Water
+    page_title: "MSI — Moisture Stress Index"
+    card_header: Stress
+    card_header_class: bg-info text-dark
+    card_short: Moisture Stress
+    title: "Moisture Stress Index"
+    formula_latex: "$$\\text{MSI} = \\frac{R_{1599}}{R_{819}}$$"
+    formula_inline: "\\frac{R_{1599}}{R_{819}}"
+    description: "MSI is inversely related to leaf water content. Higher values indicate increasing water stress."
+    wiki_vars:
+      R_819: [813, 825]
+      R_1599: [1593, 1605]
+    bands:
+      - {label: "R819 (denom)", x0: 813, x1: 825, color: "rgba(50,180,80,0.3)"}
+      - {label: "R1599 (num)", x0: 1593, x1: 1605, color: "rgba(200,120,20,0.3)"}
+    colormap: cool
+
+  NDLI:
+    compute: ndli
+    bands_nm:
+      R_1680: 1680
+      R_1754: 1754
+    page_file: ndli
+    nav_category: Carbon/N
+    page_title: "NDLI — Normalized Difference Lignin Index"
+    card_header: Carbon
+    card_header_class: bg-secondary text-white
+    card_short: Lignin
+    title: "Normalized Difference Lignin Index"
+    formula_latex: "$$\\text{NDLI} = \\frac{\\log(1/R_{1754}) - \\log(1/R_{1680})}{\\log(1/R_{1754}) + \\log(1/R_{1680})}$$"
+    formula_inline: "\\frac{\\log(1/R_{1754}) - \\log(1/R_{1680})}{\\log(1/R_{1754}) + \\log(1/R_{1680})}"
+    description: "NDLI estimates cellulose/lignin concentration using SWIR absorption features."
+    wiki_vars:
+      R_1680: [1674, 1686]
+      R_1754: [1748, 1760]
+    bands:
+      - {label: "R1680", x0: 1674, x1: 1686, color: "rgba(200,130,20,0.3)"}
+      - {label: "R1754", x0: 1748, x1: 1760, color: "rgba(120,50,180,0.3)"}
+    colormap: BrBG
+
+  NDNI:
+    compute: ndni
+    bands_nm:
+      R_1510: 1510
+      R_1680: 1680
+    page_file: ndni
+    nav_category: Carbon/N
+    page_title: "NDNI — Normalized Difference Nitrogen Index"
+    card_header: Nitrogen
+    card_header_class: bg-secondary text-white
+    card_short: Nitrogen Index
+    title: "Normalized Difference Nitrogen Index"
+    formula_latex: "$$\\text{NDNI} = \\frac{\\log(1/R_{1510}) - \\log(1/R_{1680})}{\\log(1/R_{1510}) + \\log(1/R_{1680})}$$"
+    formula_inline: "\\frac{\\log(1/R_{1510}) - \\log(1/R_{1680})}{\\log(1/R_{1510}) + \\log(1/R_{1680})}"
+    description: "NDNI estimates foliar nitrogen concentration from SWIR log-ratio reflectance."
+    wiki_vars:
+      R_1510: [1504, 1516]
+      R_1680: [1674, 1686]
+    bands:
+      - {label: "R1510", x0: 1504, x1: 1516, color: "rgba(0,180,180,0.3)"}
+      - {label: "R1680", x0: 1674, x1: 1686, color: "rgba(200,130,20,0.3)"}
+    colormap: BrBG
+
+  PROTEIN_PROXY_2180_2100:
+    compute: protein_proxy
+    bands_nm:
+      R_2100: 2100
+      R_2180: 2180
+    page_file: protein_proxy
+    nav_category: Carbon/N
+    page_title: "Protein Proxy (R2180/R2100)"
+    card_header: Protein
+    card_header_class: bg-secondary text-white
+    card_short: "Proxy 2180/2100"
+    title: "Protein Proxy (2180/2100)"
+    formula_latex: "$$\\text{Protein Proxy} = \\frac{R_{2180}}{R_{2100}}$$"
+    formula_inline: "\\frac{R_{2180}}{R_{2100}}"
+    description: "A SWIR ratio proxy for leaf protein content. Protein-N absorption occurs near 2180 nm."
+    wiki_vars:
+      R_2100: [2094, 2106]
+      R_2180: [2174, 2186]
+    bands:
+      - {label: "R2100 (denom)", x0: 2094, x1: 2106, color: "rgba(200,170,0,0.3)"}
+      - {label: "R2180 (num)", x0: 2174, x1: 2186, color: "rgba(220,80,160,0.3)"}
+    colormap: hot_r
+
+  CAI:
+    compute: cai
+    bands_nm:
+      R_2000: 2000
+      R_2100: 2100
+      R_2200: 2200
+    page_file: cai
+    nav_category: Carbon/N
+    page_title: "CAI — Cellulose Absorption Index"
+    card_header: Carbon
+    card_header_class: bg-secondary text-white
+    card_short: Cellulose Abs.
+    title: "Cellulose Absorption Index"
+    formula_latex: "$$\\text{CAI} = 0.5\\,(R_{2000} + R_{2200}) - R_{2100}$$"
+    formula_inline: "0.5\\,(R_{2000} + R_{2200}) - R_{2100}"
+    description: "CAI measures dry carbon (cellulose/lignin) in litter and residues via SWIR."
+    wiki_vars:
+      R_2000: [1994, 2006]
+      R_2100: [2094, 2106]
+      R_2200: [2194, 2206]
+    bands:
+      - {label: "R2000", x0: 1994, x1: 2006, color: "rgba(30,100,220,0.25)"}
+      - {label: "R2100 (trough)", x0: 2094, x1: 2106, color: "rgba(220,50,50,0.3)"}
+      - {label: "R2200", x0: 2194, x1: 2206, color: "rgba(50,180,80,0.25)"}
+    colormap: copper
+
+  LCAI:
+    compute: lcai
+    bands_nm:
+      R_2000: 2000
+      R_2100: 2100
+      R_2200: 2200
+      R_2300: 2300
+      R_2400: 2400
+    page_file: lcai
+    nav_category: Carbon/N
+    page_title: "LCAI — Lignin-Cellulose Absorption Index"
+    card_header: Carbon
+    card_header_class: bg-secondary text-white
+    card_short: Lignin-Cellulose
+    title: "Lignin-Cellulose Absorption Index"
+    formula_latex: "$$\\text{LCAI} = \\frac{0.5(R_{2000}+R_{2200})-R_{2100}}{0.5(R_{2000}+R_{2200})} + \\frac{0.5(R_{2200}+R_{2400})-R_{2300}}{0.5(R_{2200}+R_{2400})}$$"
+    formula_inline: "\\text{LCAI}_{part1} + \\text{LCAI}_{part2}"
+    description: "LCAI extends CAI with a second SWIR ratio to improve discrimination of cellulose and lignin in litter."
+    wiki_vars:
+      R_2000: [1994, 2006]
+      R_2100: [2094, 2106]
+      R_2200: [2194, 2206]
+      R_2300: [2294, 2306]
+      R_2400: [2394, 2406]
+    bands:
+      - {label: "R2000", x0: 1994, x1: 2006, color: "rgba(30,100,220,0.2)"}
+      - {label: "R2100 (trough1)", x0: 2094, x1: 2106, color: "rgba(220,50,50,0.3)"}
+      - {label: "R2200", x0: 2194, x1: 2206, color: "rgba(50,180,80,0.2)"}
+      - {label: "R2300 (trough2)", x0: 2294, x1: 2306, color: "rgba(200,100,20,0.3)"}
+      - {label: "R2400", x0: 2394, x1: 2406, color: "rgba(100,30,200,0.2)"}
+    colormap: copper

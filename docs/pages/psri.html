@@ -35,13 +35,11 @@
       background: #fff; border: 1px solid #dee2e6; border-radius: 8px;
       padding: 1.5rem; margin-bottom: 1rem;
     }
-    /* Formula rendered by MathJax — no spans inside LaTeX, stays clean */
     .formula-box .formula-main {
       font-size: 1.5rem; text-align: center;
       margin: 1.2rem 0 0.8rem;
       min-height: 2.5rem;
     }
-    /* Variable chips — interactive, outside the MathJax block */
     #variable-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
     .var-chip {
       display: inline-flex; align-items: center; gap: .3rem;
@@ -140,7 +138,8 @@
           <span class="fw-bold">Spatial Map</span>
           <select class="form-select form-select-sm w-auto" id="dataset-select">
             <option value="20250301_143913_32_4001">March 01 2025</option>
-            <option value="20250407_035527_47_4001">April 07 2025</option>
+            <option value="20250407_035527_47_4001">April 07 2025 (strip 2)</option>
+            <option value="20250407_035451_00_4001">April 07 2025</option>
           </select>
         </div>
         <div class="card-body p-2">
@@ -160,17 +159,14 @@
           <h6 class="fw-bold mb-0">Formula Explorer</h6>
           <span class="hint-text">💡 Hover over a variable chip to highlight its band on the chart</span>
         </div>
-        <!-- Pure LaTeX — MathJax renders this cleanly with no HTML contamination -->
         <div class="formula-main" id="formula-display">
-$$\text{PSRI} = \frac{R_{680} - R_{500}}{R_{750}}$$
+$$\text{PSRI} = \frac{R_{680} - R_{490}}{R_{800}}$$
         </div>
         <p class="text-muted small mb-2" id="index-description"></p>
-        <!-- Variable chips — built dynamically by chart-logic.js, hover triggers band highlight -->
         <div class="mt-2">
           <small class="fw-semibold text-muted d-block mb-1">INTERACTIVE VARIABLES</small>
           <div id="variable-chips"></div>
         </div>
-        <!-- Band legend -->
         <div class="mt-3">
           <small class="fw-semibold text-muted">BAND LEGEND</small>
           <table class="table table-sm band-legend mt-1 mb-0">

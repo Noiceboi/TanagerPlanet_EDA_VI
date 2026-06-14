@@ -1,34 +1,59 @@
 """
-generate_pages.py  —  run once to build all 17 index HTML pages
-Run from repo root: python docs/generate_pages.py
+generate_pages.py — regenerate all spectral index HTML pages
+
+Run from repo root:
+    python docs/generate_pages.py
+
+Sources of truth (no hardcoded values):
+  - pipeline/indices.yaml  → page list, formulas, navigation
+  - docs/data/datasets.json → dataset dropdown options
 """
-import os, pathlib, textwrap
+import json
+import pathlib
+import sys
+
+import yaml
 
 DOCS = pathlib.Path(__file__).parent
+ROOT = DOCS.parent
 PAGES = DOCS / "pages"
 PAGES.mkdir(exist_ok=True)
 
+# ── Load indices config from YAML ─────────────────────────────────────────────
+_yaml_path = ROOT / "pipeline" / "indices.yaml"
+if not _yaml_path.exists():
+    print(f"ERROR: {_yaml_path} not found. Run from repo root.", file=sys.stderr)
+    sys.exit(1)
+
+with open(_yaml_path, encoding="utf-8") as f:
+    _indices_cfg = yaml.safe_load(f)
+
+INDICES = _indices_cfg["indices"]
+
+# Build PAGES_DEF from YAML
 PAGES_DEF = [
-    # (filename,  INDEX_NAME,  nav_category,  page_title)
-    ("ndvi",              "NDVI",                    "Vegetation",  "NDVI — Normalized Difference Vegetation Index"),
-    ("psri",              "PSRI",                    "Vegetation",  "PSRI — Plant Senescence Reflectance Index"),
-    ("rep",               "REP",                     "Vegetation",  "REP — Red Edge Position"),
-    ("pri",               "PRI",                     "Pigments",    "PRI — Photochemical Reflectance Index"),
-    ("ari",               "ARI",                     "Pigments",    "ARI — Anthocyanin Reflectance Index"),
-    ("cri550",            "CRI550",                  "Pigments",    "CRI550 — Carotenoid Reflectance Index"),
-    ("cri700",            "CRI700",                  "Pigments",    "CRI700 — Carotenoid Reflectance Index 700"),
-    ("mcari",             "MCARI",                   "Pigments",    "MCARI — Modified Chlorophyll Absorption Ratio"),
-    ("mcari_osavi",       "MCARI_OSAVI",             "Pigments",    "MCARI/OSAVI — Chlorophyll Ratio"),
-    ("wbi",               "WBI",                     "Water",       "WBI — Water Band Index"),
-    ("wi",                "WI",                      "Water",       "WI — Water Index"),
-    ("msi",               "MSI",                     "Water",       "MSI — Moisture Stress Index"),
-    ("ndli",              "NDLI",                    "Carbon/N",    "NDLI — Normalized Difference Lignin Index"),
-    ("ndni",              "NDNI",                    "Carbon/N",    "NDNI — Normalized Difference Nitrogen Index"),
-    ("protein_proxy",     "PROTEIN_PROXY_2180_2100", "Carbon/N",    "Protein Proxy (R2180/R2100)"),
-    ("cai",               "CAI",                     "Carbon/N",    "CAI — Cellulose Absorption Index"),
-    ("lcai",              "LCAI",                    "Carbon/N",    "LCAI — Lignin-Cellulose Absorption Index"),
+    (cfg["page_file"], name, cfg["nav_category"], cfg["page_title"])
+    for name, cfg in INDICES.items()
+    if "page_file" in cfg
 ]
 
+# ── Load datasets registry ────────────────────────────────────────────────────
+_ds_path = DOCS / "data" / "datasets.json"
+DATASETS = {}
+if _ds_path.exists():
+    with open(_ds_path, encoding="utf-8") as f:
+        DATASETS = json.load(f).get("datasets", {})
+
+if not DATASETS:
+    print("WARNING: docs/data/datasets.json is empty or missing. "
+          "Dataset dropdowns will be empty. Run run_pipeline.py first.")
+
+DATASET_OPTIONS_HTML = "\n            ".join(
+    f'<option value="{key}">{d["label"]}</option>'
+    for key, d in DATASETS.items()
+) or '<option value="">No datasets processed yet</option>'
+
+# ── HTML Template ─────────────────────────────────────────────────────────────
 TEMPLATE = """\
 <!DOCTYPE html>
 <html lang="en">
@@ -67,13 +92,11 @@ TEMPLATE = """\
       background: #fff; border: 1px solid #dee2e6; border-radius: 8px;
       padding: 1.5rem; margin-bottom: 1rem;
     }}
-    /* Formula rendered by MathJax — no spans inside LaTeX, stays clean */
     .formula-box .formula-main {{
       font-size: 1.5rem; text-align: center;
       margin: 1.2rem 0 0.8rem;
       min-height: 2.5rem;
     }}
-    /* Variable chips — interactive, outside the MathJax block */
     #variable-chips {{ display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }}
     .var-chip {{
       display: inline-flex; align-items: center; gap: .3rem;
@@ -171,8 +194,7 @@ TEMPLATE = """\
         <div class="card-header d-flex justify-content-between align-items-center">
           <span class="fw-bold">Spatial Map</span>
           <select class="form-select form-select-sm w-auto" id="dataset-select">
-            <option value="20250301_143913_32_4001">March 01 2025</option>
-            <option value="20250407_035527_47_4001">April 07 2025</option>
+            {dataset_options}
           </select>
         </div>
         <div class="card-body p-2">
@@ -192,17 +214,14 @@ TEMPLATE = """\
           <h6 class="fw-bold mb-0">Formula Explorer</h6>
           <span class="hint-text">💡 Hover over a variable chip to highlight its band on the chart</span>
         </div>
-        <!-- Pure LaTeX — MathJax renders this cleanly with no HTML contamination -->
         <div class="formula-main" id="formula-display">
 {formula_html}
         </div>
         <p class="text-muted small mb-2" id="index-description"></p>
-        <!-- Variable chips — built dynamically by chart-logic.js, hover triggers band highlight -->
         <div class="mt-2">
           <small class="fw-semibold text-muted d-block mb-1">INTERACTIVE VARIABLES</small>
           <div id="variable-chips"></div>
         </div>
-        <!-- Band legend -->
         <div class="mt-3">
           <small class="fw-semibold text-muted">BAND LEGEND</small>
           <table class="table table-sm band-legend mt-1 mb-0">
@@ -235,38 +254,20 @@ TEMPLATE = """\
 </html>
 """
 
-# Pure LaTeX formulas — NO HTML inside $$...$$  (MathJax cannot mix HTML and LaTeX)
-# Variable hover interaction is handled separately via #variable-chips chips in JS
-FORMULA_HTML = {
-    "NDVI":   r"$$\text{NDVI} = \frac{R_{NIR} - R_{Red}}{R_{NIR} + R_{Red}}$$",
-    "PRI":    r"$$\text{PRI} = \frac{R_{531} - R_{570}}{R_{531} + R_{570}}$$",
-    "WBI":    r"$$\text{WBI} = \frac{R_{970}}{R_{900}}$$",
-    "WI":     r"$$\text{WI} = \frac{R_{900}}{R_{970}}$$",
-    "PSRI":   r"$$\text{PSRI} = \frac{R_{680} - R_{500}}{R_{750}}$$",
-    "REP":    r"$$\lambda_{REP} = 700 + 40 \cdot \frac{\bar{R}_{RE} - R_{700}}{R_{740} - R_{700}}$$",
-    "ARI":    r"$$\text{ARI} = \frac{1}{R_{550}} - \frac{1}{R_{700}}$$",
-    "CRI550": r"$$\text{CRI}_{550} = \frac{1}{R_{510}} - \frac{1}{R_{550}}$$",
-    "CRI700": r"$$\text{CRI}_{700} = \frac{1}{R_{510}} - \frac{1}{R_{700}}$$",
-    "MCARI":  r"$$\text{MCARI} = \left[(R_{700}-R_{670}) - 0.2\,(R_{700}-R_{550})\right] \cdot \frac{R_{700}}{R_{670}}$$",
-    "MCARI_OSAVI": r"$$\frac{\text{MCARI}}{\text{OSAVI}}, \quad \text{OSAVI} = \frac{1.16\,(R_{800}-R_{670})}{R_{800}+R_{670}+0.16}$$",
-    "NDLI":   r"$$\text{NDLI} = \frac{\log(1/R_{1754}) - \log(1/R_{1680})}{\log(1/R_{1754}) + \log(1/R_{1680})}$$",
-    "NDNI":   r"$$\text{NDNI} = \frac{\log(1/R_{1510}) - \log(1/R_{1680})}{\log(1/R_{1510}) + \log(1/R_{1680})}$$",
-    "PROTEIN_PROXY_2180_2100": r"$$\text{Protein Proxy} = \frac{R_{2180}}{R_{2100}}$$",
-    "CAI":    r"$$\text{CAI} = 0.5\,(R_{2000} + R_{2200}) - R_{2100}$$",
-    "LCAI":   r"$$\text{LCAI} = 0.5\,(R_{1100} + R_{2200}) - R_{2100}$$",
-    "MSI":    r"$$\text{MSI} = \frac{R_{1599}}{R_{819}}$$",
-}
-
+# ── Generate pages ────────────────────────────────────────────────────────────
 for fname, index_name, category, page_title in PAGES_DEF:
-    formula_html = FORMULA_HTML.get(index_name, f"$$\\text{{{index_name}}}$$")
+    formula_html = INDICES[index_name].get("formula_latex", f"$$\\text{{{index_name}}}$$")
     html = TEMPLATE.format(
         page_title=page_title,
         index_name=index_name,
         category=category,
         formula_html=formula_html,
+        dataset_options=DATASET_OPTIONS_HTML,
     )
     out = PAGES / f"{fname}.html"
     out.write_text(html, encoding="utf-8")
     print(f"  written: pages/{fname}.html")
 
 print(f"\nAll {len(PAGES_DEF)} index pages generated.")
+if DATASETS:
+    print(f"Datasets in dropdown: {list(DATASETS.keys())}")

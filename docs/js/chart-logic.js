@@ -7,26 +7,48 @@
 "use strict";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Dataset registry
+// Dataset registry — loaded dynamically from docs/data/datasets.json
 // ─────────────────────────────────────────────────────────────────────────────
-const DATASETS = {
-  "20250301_143913_32_4001": {
-    label: "March 01 2025 — 20250301",
-    jsonFile: "mean_spectra_20250301_143913_32_4001.json",
-    cubeShape: "(426, 680, 805)",
-    repMean: "715.94 nm",
-    pcaVar: "43.5 % / 40.6 % / 8.6 %",
-    anomalyThr: "5.18",
-  },
-  "20250407_035527_47_4001": {
-    label: "April 07 2025 — 20250407",
-    jsonFile: "mean_spectra_20250407_035527_47_4001.json",
-    cubeShape: "(426, 717, 789)",
-    repMean: "730.97 nm",
-    pcaVar: "76.8 % / 11.6 % / 6.4 %",
-    anomalyThr: "3.28",
-  },
-};
+let DATASETS = {};
+
+async function loadDatasetsRegistry() {
+  const base = document.querySelector("meta[name='data-base']")
+    ? document.querySelector("meta[name='data-base']").content
+    : "data/";
+  try {
+    const resp = await fetch(base + "datasets.json");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const reg = await resp.json();
+    DATASETS = reg.datasets || {};
+  } catch (e) {
+    console.error("Could not load datasets.json:", e);
+    DATASETS = {};
+  }
+}
+
+function buildDatasetCard(key, d) {
+  return `
+    <div class="col-md-6">
+      <div class="card shadow-sm" id="card-${key}">
+        <div class="card-header ${d.cardHeaderClass || 'bg-primary text-white'}">${d.cardLabel || 'Dataset'} — <span class="ds-label">${d.label}</span></div>
+        <div class="card-body">
+          <table class="table table-sm table-borderless mb-2">
+            <tbody>
+              <tr><th scope="row" class="text-muted">Cube shape</th><td class="ds-shape font-monospace">—</td></tr>
+              <tr><th scope="row" class="text-muted">REP mean</th><td class="ds-rep">—</td></tr>
+              <tr><th scope="row" class="text-muted">PCA variance</th><td class="ds-pca">—</td></tr>
+              <tr><th scope="row" class="text-muted">Anomaly P99</th><td class="ds-anomaly">—</td></tr>
+            </tbody>
+          </table>
+          <a href="images/maps/${key}/02_index_maps.png" target="_blank">
+            <img class="overview-img" src="images/maps/${key}/02_index_maps.png"
+                 alt="Index Maps Overview ${d.label}" />
+          </a>
+          <p class="text-muted small mt-2 mb-0">All-index grid map. Click to enlarge.</p>
+        </div>
+      </div>
+    </div>`;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Index configuration: formula, description, band highlight regions
@@ -293,7 +315,7 @@ const INDEX_CONFIG = {
 // ─────────────────────────────────────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────────────────────────────────────
-let _currentDataset = Object.keys(DATASETS)[0];
+let _currentDataset = null; // set after registry loads
 let _currentIndex = null;
 let _spectraCache = {}; // { datasetKey: { wavelengths, mean_reflectance } }
 
@@ -480,7 +502,9 @@ function updateDataset(newDatasetKey) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Page initializer — called from each index page
 // ─────────────────────────────────────────────────────────────────────────────
-function initIndexPage(indexName) {
+async function initIndexPage(indexName) {
+  await loadDatasetsRegistry();
+  _currentDataset = Object.keys(DATASETS)[0] || null;
   _currentIndex = indexName;
   const cfg = INDEX_CONFIG[indexName];
   if (!cfg) return;
@@ -545,15 +569,34 @@ function initIndexPage(indexName) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Dashboard page helpers (index.html)
 // ─────────────────────────────────────────────────────────────────────────────
-function initDashboard() {
-  // Fill overview grid for both datasets
+async function initDashboard() {
+  await loadDatasetsRegistry();
+
+  // Build dataset cards dynamically
+  const container = document.getElementById("dataset-cards-container");
+  if (container) {
+    container.innerHTML = Object.entries(DATASETS)
+      .map(([key, d]) => buildDatasetCard(key, d))
+      .join("");
+  }
+
+  // Fill stats into cards (works whether cards were static or just injected)
   Object.entries(DATASETS).forEach(([key, d]) => {
     const card = document.getElementById(`card-${key}`);
     if (!card) return;
-    card.querySelector(".ds-label").textContent = d.label;
-    card.querySelector(".ds-shape").textContent = d.cubeShape;
-    card.querySelector(".ds-rep").textContent = d.repMean;
-    card.querySelector(".ds-pca").textContent = d.pcaVar;
-    card.querySelector(".ds-anomaly").textContent = d.anomalyThr;
+    const qs = (sel) => card.querySelector(sel);
+    if (qs(".ds-label")) qs(".ds-label").textContent = d.label;
+    if (qs(".ds-shape")) qs(".ds-shape").textContent = d.cubeShape;
+    if (qs(".ds-rep")) qs(".ds-rep").textContent = d.repMean;
+    if (qs(".ds-pca")) qs(".ds-pca").textContent = d.pcaVar;
+    if (qs(".ds-anomaly")) qs(".ds-anomaly").textContent = d.anomalyThr;
   });
+
+  // Update hero date badges
+  const badgesEl = document.getElementById("dataset-date-badges");
+  if (badgesEl) {
+    badgesEl.innerHTML = Object.values(DATASETS)
+      .map((d) => `<span class="badge bg-light text-dark fs-6">📅 ${d.label}</span>`)
+      .join(" ");
+  }
 }

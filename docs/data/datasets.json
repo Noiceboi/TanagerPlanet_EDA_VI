@@ -1,0 +1,41 @@
+{
+  "datasets": {
+    "20250301_143913_32_4001": {
+      "label": "March 01 2025",
+      "jsonFile": "mean_spectra_20250301_143913_32_4001.json",
+      "cubeShape": "(426, 680, 805)",
+      "repMean": "715.94 nm",
+      "pcaVar": "43.5% / 40.6% / 8.6%",
+      "anomalyThr": "5.18",
+      "date": "2025-03-01",
+      "cardHeaderClass": "bg-primary text-white",
+      "cardLabel": "Dataset 1"
+    },
+    "20250407_035527_47_4001": {
+      "label": "April 07 2025 (strip 2)",
+      "jsonFile": "mean_spectra_20250407_035527_47_4001.json",
+      "cubeShape": "(426, 717, 789)",
+      "repMean": "730.97 nm",
+      "pcaVar": "76.8% / 11.6% / 6.4%",
+      "anomalyThr": "3.28",
+      "date": "2025-04-07",
+      "cardHeaderClass": "bg-success text-white",
+      "cardLabel": "Dataset 2"
+    },
+    "20250407_035451_00_4001": {
+      "label": "April 07 2025",
+      "jsonFile": "mean_spectra_20250407_035451_00_4001.json",
+      "cubeShape": "(426, 691, 809)",
+      "repMean": "735.98 nm",
+      "pcaVar": "55.7% / 23.1% / 15.4%",
+      "anomalyThr": "4.09",
+      "date": "2025-04-07",
+      "cardHeaderClass": "bg-info text-dark",
+      "cardLabel": "Dataset 3"
+    }
+  },
+  "_meta": {
+    "generated_by": "run_pipeline.py",
+    "schema_version": 1
+  }
+}

@@ -79,8 +79,7 @@
     <h1>Vietnam Hyperspectral EDA Dashboard</h1>
     <p>Exploratory data analysis of Planet Tanager hyperspectral imagery (426 bands, 376–2499 nm) across two acquisition dates. Explore 17 spectral vegetation indices with interactive reflectance charts and mathematical formula explorers.</p>
     <div class="mt-3 d-flex gap-2 flex-wrap">
-      <span class="badge bg-light text-dark fs-6">📅 March 01 2025</span>
-      <span class="badge bg-light text-dark fs-6">📅 April 07 2025</span>
+      <span id="dataset-date-badges"></span>
       <span class="badge bg-info text-dark fs-6">426 bands</span>
       <span class="badge bg-info text-dark fs-6">376–2499 nm</span>
       <span class="badge bg-warning text-dark fs-6">17 indices</span>
@@ -90,49 +89,8 @@
 
 <div class="container py-4">
 
-  <!-- Dataset cards -->
-  <div class="row g-4 mb-5">
-    <div class="col-md-6">
-      <div class="card shadow-sm" id="card-20250301_143913_32_4001">
-        <div class="card-header bg-primary text-white">Dataset 1 — <span class="ds-label">March 01 2025</span></div>
-        <div class="card-body">
-          <table class="table table-sm table-borderless mb-2">
-            <tbody>
-              <tr><th scope="row" class="text-muted">Cube shape</th><td class="ds-shape font-monospace">—</td></tr>
-              <tr><th scope="row" class="text-muted">REP mean</th><td class="ds-rep">—</td></tr>
-              <tr><th scope="row" class="text-muted">PCA variance</th><td class="ds-pca">—</td></tr>
-              <tr><th scope="row" class="text-muted">Anomaly P99</th><td class="ds-anomaly">—</td></tr>
-            </tbody>
-          </table>
-          <a href="images/maps/20250301_143913_32_4001/02_index_maps.png" target="_blank">
-            <img class="overview-img" src="images/maps/20250301_143913_32_4001/02_index_maps.png"
-                 alt="Index Maps Overview March 2025" />
-          </a>
-          <p class="text-muted small mt-2 mb-0">All-index grid map. Click to enlarge.</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm" id="card-20250407_035527_47_4001">
-        <div class="card-header bg-success text-white">Dataset 2 — <span class="ds-label">April 07 2025</span></div>
-        <div class="card-body">
-          <table class="table table-sm table-borderless mb-2">
-            <tbody>
-              <tr><th scope="row" class="text-muted">Cube shape</th><td class="ds-shape font-monospace">—</td></tr>
-              <tr><th scope="row" class="text-muted">REP mean</th><td class="ds-rep">—</td></tr>
-              <tr><th scope="row" class="text-muted">PCA variance</th><td class="ds-pca">—</td></tr>
-              <tr><th scope="row" class="text-muted">Anomaly P99</th><td class="ds-anomaly">—</td></tr>
-            </tbody>
-          </table>
-          <a href="images/maps/20250407_035527_47_4001/02_index_maps.png" target="_blank">
-            <img class="overview-img" src="images/maps/20250407_035527_47_4001/02_index_maps.png"
-                 alt="Index Maps Overview April 2025" />
-          </a>
-          <p class="text-muted small mt-2 mb-0">All-index grid map. Click to enlarge.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Dataset cards — populated dynamically by initDashboard() from docs/data/datasets.json -->
+  <div class="row g-4 mb-5" id="dataset-cards-container"></div>
 
   <!-- Index grid -->
   <h4 class="mb-3 fw-bold">Spectral Index Explorer</h4>
