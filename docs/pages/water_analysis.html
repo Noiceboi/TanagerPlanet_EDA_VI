@@ -240,9 +240,36 @@
           <div class="img-label mt-1">Dark RGB + cyan fill + glowing centerlines (ZS thinning)</div>
         </div>
       </div>
-      <div class="mt-3 p-3 bg-light rounded small text-muted">
-        <span class="algo-badge bg-info text-dark">Zhang-Suen</span> Parallel thinning — all candidate pixels removed simultaneously each iteration. Fast, produces clean 1-px skeleton. &nbsp;
-        <span class="algo-badge bg-warning text-dark">Hilditch</span> Sequential thinning — pixels removed one at a time, scan-order dependent. Slightly more connected but slower.
+      <div class="stage-header">
+        <span class="stage-badge text-white" style="background:#8855ff">Stage 4</span>
+        Chordal Axis Transform (CAT)
+        <small class="text-muted fw-normal">(CDT triangle classification + adaptive pruning + Taubin smoothing)</small>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 img-card">
+          <img data-vi="WBI" data-stage="cat_mesh" src="" alt="WBI CDT mesh" />
+          <div class="img-label"><span style="color:#22cc55">■</span> Terminal &nbsp; <span style="color:#4499ff">■</span> Sleeve &nbsp; <span style="color:#ff3333">■</span> Junction — Yellow axis</div>
+        </div>
+        <div class="col-md-6">
+          <div class="skel-card">
+            <img data-vi="WBI" data-stage="cat" src="" alt="WBI CAT" class="w-100" />
+          </div>
+          <div class="img-label mt-1">CAT centerlines — scale-adaptive (wide→Junction, narrow→Sleeve)</div>
+        </div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-12 img-card">
+          <img data-vi="WBI" data-stage="compare" src="" alt="WBI comparison" />
+          <div class="img-label">Zhang-Suen (left) vs CAT (right) — CAT handles width variation smoothly</div>
+        </div>
+      </div>
+      <div class="mt-3 p-3 rounded small text-muted" style="background:#f0f4ff">
+        <strong>Why CAT?</strong> Zhang-Suen pixel thinning produces staircase artifacts at 45° and loses scale information.
+        CAT uses Delaunay triangulation to encode local canal width in each triangle's circumradius.
+        <em>Wide rivers</em> → Junction clusters (red) → smooth branching nodes.
+        <em>Narrow canals</em> → Sleeve chains (blue) → precise 1-triangle-wide centerlines.
+        Width transitions between river and tributary are handled continuously with no artifacts.
+        Adaptive pruning threshold = 1.5 × local_radius (from EDT) — wide junctions tolerate longer spurs.
       </div>
     </div>
 
@@ -268,6 +295,14 @@
       <div class="row g-3">
         <div class="col-12"><div class="skel-card"><img data-vi="WI" data-stage="skeleton" src="" alt="WI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines</div></div>
       </div>
+      <div class="stage-header"><span class="stage-badge text-white" style="background:#8855ff">Stage 4</span> Chordal Axis Transform (CAT)</div>
+      <div class="row g-3">
+        <div class="col-md-6 img-card"><img data-vi="WI" data-stage="cat_mesh" src="" alt="WI CDT mesh" /><div class="img-label"><span style="color:#22cc55">■</span> Terminal &nbsp;<span style="color:#4499ff">■</span> Sleeve &nbsp;<span style="color:#ff3333">■</span> Junction</div></div>
+        <div class="col-md-6"><div class="skel-card"><img data-vi="WI" data-stage="cat" src="" alt="WI CAT" class="w-100" /></div><div class="img-label mt-1">CAT centerlines</div></div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-12 img-card"><img data-vi="WI" data-stage="compare" src="" alt="WI comparison" /><div class="img-label">ZS vs CAT comparison</div></div>
+      </div>
     </div>
 
     <!-- ── MSI tab ─────────────────────────────────────────────────── -->
@@ -292,6 +327,14 @@
       <div class="row g-3">
         <div class="col-12"><div class="skel-card"><img data-vi="MSI" data-stage="skeleton" src="" alt="MSI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines</div></div>
       </div>
+      <div class="stage-header"><span class="stage-badge text-white" style="background:#8855ff">Stage 4</span> Chordal Axis Transform (CAT)</div>
+      <div class="row g-3">
+        <div class="col-md-6 img-card"><img data-vi="MSI" data-stage="cat_mesh" src="" alt="MSI CDT mesh" /><div class="img-label"><span style="color:#22cc55">■</span> Terminal &nbsp;<span style="color:#4499ff">■</span> Sleeve &nbsp;<span style="color:#ff3333">■</span> Junction</div></div>
+        <div class="col-md-6"><div class="skel-card"><img data-vi="MSI" data-stage="cat" src="" alt="MSI CAT" class="w-100" /></div><div class="img-label mt-1">CAT centerlines</div></div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-12 img-card"><img data-vi="MSI" data-stage="compare" src="" alt="MSI comparison" /><div class="img-label">ZS vs CAT comparison</div></div>
+      </div>
     </div>
 
     <!-- ── HDWI tab ────────────────────────────────────────────────── -->
@@ -315,6 +358,16 @@
       <div class="stage-header"><span class="stage-badge bg-warning text-dark">Stage 3</span> Canal Centerlines</div>
       <div class="row g-3">
         <div class="col-12"><div class="skel-card"><img data-vi="HDWI" data-stage="skeleton" src="" alt="HDWI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines (recommended: best separability for water bodies)</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge text-white" style="background:#8855ff">Stage 4</span> Chordal Axis Transform (CAT)
+        <span class="badge bg-warning text-dark ms-2" style="font-size:.65rem">Recommended</span>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 img-card"><img data-vi="HDWI" data-stage="cat_mesh" src="" alt="HDWI CDT mesh" /><div class="img-label"><span style="color:#22cc55">■</span> Terminal &nbsp;<span style="color:#4499ff">■</span> Sleeve &nbsp;<span style="color:#ff3333">■</span> Junction — Yellow axis</div></div>
+        <div class="col-md-6"><div class="skel-card"><img data-vi="HDWI" data-stage="cat" src="" alt="HDWI CAT" class="w-100" /></div><div class="img-label mt-1">CAT centerlines — HDWI + CDT gives clearest canal network</div></div>
+      </div>
+      <div class="row g-3 mt-1">
+        <div class="col-12 img-card"><img data-vi="HDWI" data-stage="compare" src="" alt="HDWI comparison" /><div class="img-label">Zhang-Suen vs CAT — note smooth width transitions in CAT</div></div>
       </div>
     </div>
 
@@ -345,13 +398,26 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="d-flex gap-2 align-items-start">
             <span class="stage-badge bg-warning text-dark mt-1">3</span>
             <div>
               <div class="fw-semibold">Skeleton / Centerlines</div>
               <div class="text-muted small">
-                <strong>Zhang-Suen</strong> (parallel thinning): all candidate pixels removed simultaneously. <strong>Hilditch</strong> (sequential): scan-order removal. Both reduce the water body mask to 1-pixel-wide centerlines — the canal network topology.
+                <strong>Zhang-Suen</strong> (parallel thinning): all pixels removed simultaneously per iteration. Fast, produces clean 1-px skeleton but creates 45° staircase artifacts at diagonal segments.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="d-flex gap-2 align-items-start">
+            <span class="stage-badge text-white mt-1" style="background:#8855ff">4</span>
+            <div>
+              <div class="fw-semibold">Chordal Axis Transform</div>
+              <div class="text-muted small">
+                <strong>Delaunay triangulation</strong> of the boundary contour → classify triangles (Terminal/Sleeve/Junction) → build midpoint axis.
+                <strong>Adaptive pruning</strong>: threshold = 1.5 × local_radius (EDT). Wide rivers tolerate longer spurs; narrow canals prune aggressively.
+                <strong>Taubin smoothing</strong> (λ=0.5, μ=−0.53) removes staircase without shrinking the curve.
               </div>
             </div>
           </div>
