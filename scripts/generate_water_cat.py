@@ -39,7 +39,7 @@ import networkx as nx
 import numpy as np
 from scipy.spatial import Delaunay as ScipyDelaunay
 from scipy.ndimage import (binary_fill_holes, distance_transform_edt,
-                           gaussian_filter)
+                           gaussian_filter, gaussian_filter1d)
 from skimage.draw import line as draw_line
 from skimage.filters import frangi
 from skimage.measure import find_contours, label as sklabel
@@ -72,12 +72,14 @@ BLOB_SIGMAS     = [4, 6, 8, 11, 15, 20]
 RGB_NM          = (665, 560, 470)
 DPI             = 130
 
-N_CONTOUR_PTS   = 600   # max contour sample points per component
+N_CONTOUR_PTS   = 1500  # max contour sample points per component (higher = finer triangles = better curves)
 MIN_COMP_PX     = 400   # skip components smaller than this
 PRUNE_K         = 1.5   # prune leaf if length < PRUNE_K × local_radius
 SMOOTH_LAMBDA   = 0.50  # Taubin positive step
 SMOOTH_MU       = -0.53 # Taubin negative step (|mu| > |lambda| to prevent shrink)
-SMOOTH_ITER     = 8     # Taubin iterations
+SMOOTH_ITER     = 3     # Taubin iterations (reduced: more iterations straighten curves)
+RESAMPLE_SPACING = 1.5  # resample axis paths at this pixel interval before Taubin
+CURVE_WEIGHT    = 3.5   # adaptive sampling: extra density at high-curvature (bend) regions
 
 # Triangle type colors (for CDT mesh visualization)
 TRI_COLORS = {"T": "#22cc55", "S": "#4499ff", "J": "#ff3333"}
@@ -147,6 +149,103 @@ def geometric_mask(vi_map, water_high, prior_pct=30):
 
 # ── CAT core ───────────────────────────────────────────────────────────────────
 
+def curvature_adaptive_sample(contour, max_n, curve_weight=CURVE_WEIGHT):
+    """
+    Sample contour in arc-length space with curvature-adaptive density.
+
+    Key design decisions:
+    - Uses arc-length parameterization (not raw index steps) so it works
+      correctly regardless of whether find_contours returns 0.7-1px points
+      or 2-3px points.
+    - Enforces a hard minimum spacing of MIN_SPACING=2.5px between samples
+      to avoid degenerate Delaunay triangles.
+    - At high-curvature (bend) regions: spacing reduced by up to 1/(1+curve_weight)
+      → more triangles → shorter axis chords → centerline follows the bend.
+    - At straight regions: uniform spacing = total_arc / max_n (or MIN_SPACING floor).
+
+    curve_weight=3.5 means: at the sharpest bend, spacing is 1/4.5 of the base.
+    But always ≥ MIN_SPACING=2.5px.
+    """
+    n = len(contour)
+    if n < 6:
+        return contour
+
+    # Arc-length parameterization
+    segs = np.diff(contour, axis=0)
+    seg_lens = np.linalg.norm(segs, axis=1)
+    total_arc = seg_lens.sum()
+    cum_arc = np.concatenate([[0.0], np.cumsum(seg_lens)])
+
+    # Base spacing: uniform distribution gives max_n points
+    # Never go below MIN_SPACING to ensure triangle quality
+    MIN_SPACING = 2.5
+    base_spacing = max(MIN_SPACING, total_arc / max_n)
+
+    # Curvature proxy: angle change between consecutive tangent vectors
+    kappa = np.zeros(n)
+    for i in range(1, n - 1):
+        v1 = contour[i] - contour[i - 1]
+        v2 = contour[i + 1] - contour[i]
+        l1 = np.linalg.norm(v1) + 1e-8
+        l2 = np.linalg.norm(v2) + 1e-8
+        kappa[i] = 1.0 - np.clip(np.dot(v1 / l1, v2 / l2), -1.0, 1.0)
+
+    # Smooth kappa so we don't over-concentrate on noise spikes
+    kappa = gaussian_filter1d(kappa, sigma=max(2, n // 80))
+    kappa_norm = kappa / (kappa.max() + 1e-8)
+
+    # Walk along arc length, placing samples with adaptive spacing
+    indices = [0]
+    next_target = cum_arc[0] + _adaptive_spacing(kappa_norm[0], base_spacing, curve_weight, MIN_SPACING)
+
+    for i in range(1, n):
+        if cum_arc[i] >= next_target:
+            indices.append(i)
+            sp = _adaptive_spacing(kappa_norm[min(i, n - 1)], base_spacing, curve_weight, MIN_SPACING)
+            next_target = cum_arc[i] + sp
+
+    if not indices or indices[-1] != n - 1:
+        indices.append(n - 1)
+
+    return contour[np.array(indices)]
+
+
+def _adaptive_spacing(kappa_norm_i, base_spacing, curve_weight, min_sp):
+    """Compute adaptive spacing at a single point. Floored at min_sp."""
+    return max(min_sp, base_spacing / (1.0 + curve_weight * float(kappa_norm_i)))
+
+
+def resample_path_uniform(path, spacing=RESAMPLE_SPACING):
+    """
+    Resample a path (list of (row,col) tuples) at uniform arc-length intervals.
+
+    Purpose: before Taubin smoothing, give the smoother many control points
+    so it can preserve local curvature instead of pulling sharp bends straight.
+    Without this, sparse graph nodes become the only control points → Taubin
+    averages over wide spans → corners get cut.
+    """
+    if len(path) < 2:
+        return path
+    pts = np.array([[p[0], p[1]] for p in path], dtype=float)
+    diffs = np.diff(pts, axis=0)
+    seg_lens = np.hypot(diffs[:, 0], diffs[:, 1])
+    cum_len = np.concatenate([[0.0], np.cumsum(seg_lens)])
+    total_len = cum_len[-1]
+    if total_len < spacing:
+        return path
+
+    n_new = max(3, int(total_len / spacing) + 1)
+    new_ts = np.linspace(0.0, total_len, n_new)
+    new_pts = []
+    for t in new_ts:
+        idx = int(np.searchsorted(cum_len, t, side="right")) - 1
+        idx = np.clip(idx, 0, len(seg_lens) - 1)
+        frac = np.clip((t - cum_len[idx]) / (seg_lens[idx] + 1e-10), 0.0, 1.0)
+        p = pts[idx] + frac * diffs[idx]
+        new_pts.append(tuple(p))
+    return new_pts
+
+
 def build_cdt(comp_mask, n_pts=N_CONTOUR_PTS):
     """
     Build approximate Constrained Delaunay Triangulation via scipy.spatial.Delaunay.
@@ -174,16 +273,9 @@ def build_cdt(comp_mask, n_pts=N_CONTOUR_PTS):
 
     contour = max(contours, key=len)   # (N_raw, 2) as (row, col)
 
-    # Uniform downsample
-    step = max(1, len(contour) // n_pts)
-    pts_rc = contour[::step]
-
-    # Remove near-duplicate points (within 1.5 px) to avoid degenerate triangles
-    keep_mask = np.ones(len(pts_rc), dtype=bool)
-    for i in range(1, len(pts_rc)):
-        if np.linalg.norm(pts_rc[i] - pts_rc[i - 1]) < 1.5:
-            keep_mask[i] = False
-    pts_rc = pts_rc[keep_mask]
+    # Curvature-adaptive arc-length sampling (enforces ≥2.5px spacing internally)
+    # More points at bends → finer triangles → shorter axis chords → better curves
+    pts_rc = curvature_adaptive_sample(contour, n_pts)
     N = len(pts_rc)
     if N < 6:
         return None
@@ -494,13 +586,20 @@ def smooth_graph_paths(G):
                 path.append(nxt)
                 prev, curr = curr, nxt
 
-            # Smooth this path
-            if len(path) >= 3:
-                smooth = taubin_smooth_path(path)
+            # Resample path at fine intervals before Taubin so the smoother
+            # has enough control points to preserve sharp bends.
+            # Without this, sparse graph nodes cause Taubin to cut corners.
+            if len(path) >= 2:
+                resampled = resample_path_uniform(path)
+            else:
+                resampled = path
+
+            if len(resampled) >= 3:
+                smooth = taubin_smooth_path(resampled)
                 for a, b in zip(smooth[:-1], smooth[1:]):
                     smoothed_segs.append((a, b))
             else:
-                for a, b in zip(path[:-1], path[1:]):
+                for a, b in zip(resampled[:-1], resampled[1:]):
                     smoothed_segs.append((a, b))
 
     return smoothed_segs
