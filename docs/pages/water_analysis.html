@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Channel Analysis | Hyperspectral EDA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <meta name="data-base" content="../data/" />
+  <style>
+    body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+    .navbar-brand { font-weight: 700; }
+
+    /* ── Stage section headers ── */
+    .stage-header {
+      display: flex; align-items: center; gap: .6rem;
+      font-weight: 700; font-size: 1rem; letter-spacing: .03em;
+      border-left: 4px solid var(--bs-info); padding-left: .7rem;
+      margin: 1.5rem 0 .75rem;
+    }
+    .stage-badge {
+      font-size: .7rem; font-weight: 600; padding: .25em .6em;
+      border-radius: 20px; letter-spacing: .05em;
+    }
+
+    /* ── Image cards ── */
+    .img-card { border-radius: 10px; overflow: hidden; }
+    .img-card img {
+      width: 100%; display: block;
+      border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(0,0,0,.15);
+      transition: transform .15s;
+    }
+    .img-card img:hover { transform: scale(1.015); }
+    .img-card .img-label {
+      font-size: .78rem; color: #5a6a7a; text-align: center;
+      margin-top: .4rem;
+    }
+
+    /* ── Algorithm comparison strip ── */
+    .algo-badge {
+      display: inline-block; padding: .2em .65em; border-radius: 4px;
+      font-size: .75rem; font-weight: 600; margin-right: .25rem;
+    }
+
+    /* ── VI tabs ── */
+    .nav-tabs .nav-link { color: #5a6a7a; }
+    .nav-tabs .nav-link.active { font-weight: 600; }
+
+    /* ── Skeleton glow card ── */
+    .skel-card { background: #0a0a14; border-radius: 10px; padding: 0; overflow: hidden; }
+    .skel-card img { border-radius: 10px; }
+
+    footer { background: #1a3a4a; color: rgba(255,255,255,.65); padding: 1.2rem; text-align: center; font-size: .85rem; }
+
+    .info-chip {
+      display: inline-block; background: #e9f3ff; color: #2255aa;
+      border-radius: 20px; padding: .2em .75em; font-size: .8rem;
+      font-weight: 600; margin: .15rem;
+    }
+    .overview-img { border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,.18); }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="../index.html">🛰 Hyperspectral EDA</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navmenu">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="../index.html">Dashboard</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Vegetation</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="ndvi.html">NDVI</a></li>
+            <li><a class="dropdown-item" href="psri.html">PSRI</a></li>
+            <li><a class="dropdown-item" href="rep.html">REP</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Pigments</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="pri.html">PRI</a></li>
+            <li><a class="dropdown-item" href="ari.html">ARI</a></li>
+            <li><a class="dropdown-item" href="cri550.html">CRI550</a></li>
+            <li><a class="dropdown-item" href="cri700.html">CRI700</a></li>
+            <li><a class="dropdown-item" href="mcari.html">MCARI</a></li>
+            <li><a class="dropdown-item" href="mcari_osavi.html">MCARI/OSAVI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Water &amp; Stress</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="wbi.html">WBI</a></li>
+            <li><a class="dropdown-item" href="wi.html">WI</a></li>
+            <li><a class="dropdown-item" href="msi.html">MSI</a></li>
+            <li><a class="dropdown-item" href="hdwi.html">HDWI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Carbon / N</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="ndli.html">NDLI</a></li>
+            <li><a class="dropdown-item" href="ndni.html">NDNI</a></li>
+            <li><a class="dropdown-item" href="protein_proxy.html">Protein Proxy</a></li>
+            <li><a class="dropdown-item" href="cai.html">CAI</a></li>
+            <li><a class="dropdown-item" href="lcai.html">LCAI</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-semibold text-info active" href="water_analysis.html">Water Analysis</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Page header ────────────────────────────────────────────────────────── -->
+<div class="bg-dark text-white py-3 px-4">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item"><a href="../index.html" class="text-light">Dashboard</a></li>
+        <li class="breadcrumb-item active text-info">Water Channel Analysis</li>
+      </ol>
+    </nav>
+    <h4 class="mb-0">Water Channel Analysis — Geometric Segmentation</h4>
+    <p class="mb-0 mt-1 text-secondary small">
+      Threshold mask → Frangi vesselness + LoG blob → Zhang-Suen / Hilditch skeleton
+    </p>
+  </div>
+</div>
+
+<!-- ── Controls bar ──────────────────────────────────────────────────────── -->
+<div class="bg-white border-bottom py-2 px-3 sticky-top" style="top:56px;z-index:100;">
+  <div class="container d-flex align-items-center gap-3 flex-wrap">
+    <span class="fw-semibold text-muted small">DATASET</span>
+    <select class="form-select form-select-sm w-auto" id="dataset-select">
+      <option value="">Loading…</option>
+    </select>
+    <span class="text-muted small ms-2" id="ds-meta-label"></span>
+    <div class="ms-auto d-flex gap-1 flex-wrap" id="ds-badges"></div>
+  </div>
+</div>
+
+<!-- ── Main content ──────────────────────────────────────────────────────── -->
+<div class="container py-4">
+
+  <!-- Overview section -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex align-items-center gap-2">
+      <span class="fw-bold">All Water VIs — Overview</span>
+      <span class="badge bg-secondary">4 indices</span>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <p class="text-muted small fw-semibold mb-1">Geometric Segmentation (Frangi + LoG) — all 4 VIs</p>
+          <a href="#" id="link-overview-geo" target="_blank">
+            <img id="img-overview-geo" src="" alt="Geometric overview" class="overview-img w-100" />
+          </a>
+        </div>
+        <div class="col-md-6">
+          <p class="text-muted small fw-semibold mb-1">Skeleton Comparison — Zhang-Suen vs Hilditch (HDWI)</p>
+          <a href="#" id="link-overview-skel" target="_blank">
+            <img id="img-overview-skel" src="" alt="Skeleton overview" class="overview-img w-100" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-VI tabs -->
+  <ul class="nav nav-tabs mb-0" id="vi-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-WBI" type="button">WBI</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-WI" type="button">WI</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-MSI" type="button">MSI</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-HDWI" type="button">HDWI</button>
+    </li>
+  </ul>
+
+  <div class="tab-content bg-white border border-top-0 rounded-bottom shadow-sm p-4 mb-4">
+
+    <!-- ── WBI tab ─────────────────────────────────────────────────── -->
+    <div class="tab-pane fade show active" id="tab-WBI">
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+          <h5 class="fw-bold mb-0">WBI — Water Band Index</h5>
+          <p class="text-muted small mb-0">R<sub>900</sub> / R<sub>970</sub> · Water = <strong>high ratio</strong> (970 nm strongly absorbed)</p>
+        </div>
+        <a href="wbi.html" class="btn btn-outline-secondary btn-sm">View WBI index page →</a>
+      </div>
+      <div class="stage-header">
+        <span class="stage-badge bg-secondary text-white">Stage 1</span>
+        Threshold Segmentation <small class="text-muted fw-normal">(P88 percentile cut)</small>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-5 img-card">
+          <img data-vi="WBI" data-stage="mask" src="" alt="WBI binary mask" />
+          <div class="img-label">Binary mask (white = water)</div>
+        </div>
+        <div class="col-md-7 img-card">
+          <img data-vi="WBI" data-stage="threshold" src="" alt="WBI threshold overlay" />
+          <div class="img-label">RGB overlay — cyan = water (threshold)</div>
+        </div>
+      </div>
+
+      <div class="stage-header">
+        <span class="stage-badge bg-info text-dark">Stage 2</span>
+        Geometric Segmentation
+        <small class="text-muted fw-normal">(Frangi vesselness + LoG blob, multi-scale)</small>
+      </div>
+      <div class="row g-3">
+        <div class="col-12 img-card">
+          <img data-vi="WBI" data-stage="geometric" src="" alt="WBI geometric overlay" />
+          <div class="img-label">RGB overlay — Frangi canal detection + LoG pond detection</div>
+        </div>
+      </div>
+
+      <div class="stage-header">
+        <span class="stage-badge bg-warning text-dark">Stage 3</span>
+        Canal Centerlines
+        <small class="text-muted fw-normal">(Zhang-Suen skeleton on geometric mask)</small>
+      </div>
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="skel-card">
+            <img data-vi="WBI" data-stage="skeleton" src="" alt="WBI skeleton" class="w-100" />
+          </div>
+          <div class="img-label mt-1">Dark RGB + cyan fill + glowing centerlines (ZS thinning)</div>
+        </div>
+      </div>
+      <div class="mt-3 p-3 bg-light rounded small text-muted">
+        <span class="algo-badge bg-info text-dark">Zhang-Suen</span> Parallel thinning — all candidate pixels removed simultaneously each iteration. Fast, produces clean 1-px skeleton. &nbsp;
+        <span class="algo-badge bg-warning text-dark">Hilditch</span> Sequential thinning — pixels removed one at a time, scan-order dependent. Slightly more connected but slower.
+      </div>
+    </div>
+
+    <!-- ── WI tab ──────────────────────────────────────────────────── -->
+    <div class="tab-pane fade" id="tab-WI">
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+          <h5 class="fw-bold mb-0">WI — Water Index</h5>
+          <p class="text-muted small mb-0">R<sub>900</sub> / R<sub>970</sub> · Same formula as WBI, independent computation</p>
+        </div>
+        <a href="wi.html" class="btn btn-outline-secondary btn-sm">View WI index page →</a>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-secondary text-white">Stage 1</span> Threshold Segmentation</div>
+      <div class="row g-3">
+        <div class="col-md-5 img-card"><img data-vi="WI" data-stage="mask" src="" alt="WI mask" /><div class="img-label">Binary mask</div></div>
+        <div class="col-md-7 img-card"><img data-vi="WI" data-stage="threshold" src="" alt="WI threshold" /><div class="img-label">RGB overlay (threshold)</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-info text-dark">Stage 2</span> Geometric Segmentation</div>
+      <div class="row g-3">
+        <div class="col-12 img-card"><img data-vi="WI" data-stage="geometric" src="" alt="WI geometric" /><div class="img-label">Frangi + LoG overlay</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-warning text-dark">Stage 3</span> Canal Centerlines</div>
+      <div class="row g-3">
+        <div class="col-12"><div class="skel-card"><img data-vi="WI" data-stage="skeleton" src="" alt="WI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines</div></div>
+      </div>
+    </div>
+
+    <!-- ── MSI tab ─────────────────────────────────────────────────── -->
+    <div class="tab-pane fade" id="tab-MSI">
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+          <h5 class="fw-bold mb-0">MSI — Moisture Stress Index</h5>
+          <p class="text-muted small mb-0">R<sub>1599</sub> / R<sub>819</sub> · Water = <strong>low ratio</strong> (SWIR strongly absorbed → low R<sub>1599</sub>)</p>
+        </div>
+        <a href="msi.html" class="btn btn-outline-secondary btn-sm">View MSI index page →</a>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-secondary text-white">Stage 1</span> Threshold Segmentation <small class="text-muted fw-normal">(P12 cut — bottom 12%)</small></div>
+      <div class="row g-3">
+        <div class="col-md-5 img-card"><img data-vi="MSI" data-stage="mask" src="" alt="MSI mask" /><div class="img-label">Binary mask</div></div>
+        <div class="col-md-7 img-card"><img data-vi="MSI" data-stage="threshold" src="" alt="MSI threshold" /><div class="img-label">RGB overlay (threshold)</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-info text-dark">Stage 2</span> Geometric Segmentation</div>
+      <div class="row g-3">
+        <div class="col-12 img-card"><img data-vi="MSI" data-stage="geometric" src="" alt="MSI geometric" /><div class="img-label">Frangi + LoG overlay (inverted MSI — low = water)</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-warning text-dark">Stage 3</span> Canal Centerlines</div>
+      <div class="row g-3">
+        <div class="col-12"><div class="skel-card"><img data-vi="MSI" data-stage="skeleton" src="" alt="MSI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines</div></div>
+      </div>
+    </div>
+
+    <!-- ── HDWI tab ────────────────────────────────────────────────── -->
+    <div class="tab-pane fade" id="tab-HDWI">
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+        <div>
+          <h5 class="fw-bold mb-0">HDWI — Hyperspectral Difference Water Index</h5>
+          <p class="text-muted small mb-0">(R<sub>572</sub> − R<sub>420</sub>) / (R<sub>572</sub> + R<sub>420</sub>) · Designed for hyperspectral water body detection</p>
+        </div>
+        <a href="hdwi.html" class="btn btn-outline-secondary btn-sm">View HDWI index page →</a>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-secondary text-white">Stage 1</span> Threshold Segmentation</div>
+      <div class="row g-3">
+        <div class="col-md-5 img-card"><img data-vi="HDWI" data-stage="mask" src="" alt="HDWI mask" /><div class="img-label">Binary mask</div></div>
+        <div class="col-md-7 img-card"><img data-vi="HDWI" data-stage="threshold" src="" alt="HDWI threshold" /><div class="img-label">RGB overlay (threshold)</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-info text-dark">Stage 2</span> Geometric Segmentation</div>
+      <div class="row g-3">
+        <div class="col-12 img-card"><img data-vi="HDWI" data-stage="geometric" src="" alt="HDWI geometric" /><div class="img-label">Frangi + LoG overlay</div></div>
+      </div>
+      <div class="stage-header"><span class="stage-badge bg-warning text-dark">Stage 3</span> Canal Centerlines</div>
+      <div class="row g-3">
+        <div class="col-12"><div class="skel-card"><img data-vi="HDWI" data-stage="skeleton" src="" alt="HDWI skeleton" class="w-100" /></div><div class="img-label mt-1">Glowing centerlines (recommended: best separability for water bodies)</div></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
+
+  <!-- Method description -->
+  <div class="card shadow-sm">
+    <div class="card-header fw-bold">Methodology</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="d-flex gap-2 align-items-start">
+            <span class="stage-badge bg-secondary text-white mt-1">1</span>
+            <div>
+              <div class="fw-semibold">Threshold Segmentation</div>
+              <div class="text-muted small">Percentile-based cut on the VI map (P88 for high-water indices, P12 for MSI). Simple and fast — establishes a spectral prior for what "looks like water" in each band.</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex gap-2 align-items-start">
+            <span class="stage-badge bg-info text-dark mt-1">2</span>
+            <div>
+              <div class="fw-semibold">Geometric Segmentation</div>
+              <div class="text-muted small">
+                <strong>Frangi filter</strong> (σ = 2–16 px) detects elongated tubular structures (kênh rạch). <strong>LoG blob</strong> (σ = 4–20 px) detects round ponds/lakes. Combined 60/40 with VI prior to suppress false positives.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="d-flex gap-2 align-items-start">
+            <span class="stage-badge bg-warning text-dark mt-1">3</span>
+            <div>
+              <div class="fw-semibold">Skeleton / Centerlines</div>
+              <div class="text-muted small">
+                <strong>Zhang-Suen</strong> (parallel thinning): all candidate pixels removed simultaneously. <strong>Hilditch</strong> (sequential): scan-order removal. Both reduce the water body mask to 1-pixel-wide centerlines — the canal network topology.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>Planet Tanager Hyperspectral EDA · Vietnam · 2025 &nbsp;|&nbsp; Water Channel Analysis</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/chart-logic.js"></script>
+<script>
+// ── Water Analysis page controller ─────────────────────────────────────────
+
+const IMG_BASE = "../images/water_analysis/";
+const DATA_BASE = "../data/";
+
+let currentDataset = null;
+
+// Collect all water images on page (have data-vi and data-stage attributes)
+const waterImgs = () => document.querySelectorAll("img[data-vi][data-stage]");
+const overviewImgs = {
+  geo:  document.getElementById("img-overview-geo"),
+  skel: document.getElementById("img-overview-skel"),
+  linkGeo:  document.getElementById("link-overview-geo"),
+  linkSkel: document.getElementById("link-overview-skel"),
+};
+
+function updateImages(datasetKey) {
+  if (!datasetKey) return;
+  const base = `${IMG_BASE}${datasetKey}/`;
+
+  waterImgs().forEach(img => {
+    const vi    = img.dataset.vi;
+    const stage = img.dataset.stage;
+    img.src = `${base}${vi}_${stage}.png`;
+  });
+
+  // Overview images
+  if (overviewImgs.geo)  overviewImgs.geo.src  = `${base}overview_geo.png`;
+  if (overviewImgs.skel) overviewImgs.skel.src  = `${base}overview_skeleton.png`;
+  if (overviewImgs.linkGeo)  overviewImgs.linkGeo.href  = `${base}overview_geo.png`;
+  if (overviewImgs.linkSkel) overviewImgs.linkSkel.href = `${base}overview_skeleton.png`;
+}
+
+function updateMeta(datasetKey) {
+  if (!datasetKey) return;
+  const d = (typeof DATASETS !== "undefined" && DATASETS[datasetKey]) || null;
+  const label = document.getElementById("ds-meta-label");
+  const badges = document.getElementById("ds-badges");
+  if (label) label.textContent = d ? d.label : datasetKey;
+  if (badges && d) {
+    badges.innerHTML = [
+      d.repMean  ? `<span class="info-chip">REP ${d.repMean}</span>` : "",
+      d.cubeShape? `<span class="info-chip">${d.cubeShape}</span>` : "",
+      d.pcaVar   ? `<span class="info-chip">PCA ${d.pcaVar}</span>` : "",
+    ].join("");
+  }
+}
+
+async function initWaterPage() {
+  // Load datasets registry (reuse from chart-logic.js if available)
+  if (typeof loadDatasetsRegistry === "function") {
+    await loadDatasetsRegistry();
+  } else {
+    // Fallback: fetch directly
+    try {
+      const resp = await fetch(DATA_BASE + "datasets.json");
+      if (resp.ok) {
+        const json = await resp.json();
+        if (typeof DATASETS !== "undefined") {
+          Object.assign(DATASETS, json.datasets || {});
+        }
+      }
+    } catch (e) { console.warn("datasets.json not loaded:", e); }
+  }
+
+  const sel = document.getElementById("dataset-select");
+
+  // Populate dropdown: prefer DATASETS from registry, fallback to hardcoded
+  const datasetKeys = (typeof DATASETS !== "undefined" && Object.keys(DATASETS).length > 0)
+    ? Object.keys(DATASETS)
+    : ["20250301_143913_32_4001", "20250407_035527_47_4001", "20250407_035451_00_4001"];
+
+  const labels = (typeof DATASETS !== "undefined" && Object.keys(DATASETS).length > 0)
+    ? Object.fromEntries(Object.entries(DATASETS).map(([k,v]) => [k, v.label]))
+    : {
+        "20250301_143913_32_4001": "March 01 2025",
+        "20250407_035527_47_4001": "April 07 2025 (strip 2)",
+        "20250407_035451_00_4001": "Phuong Hiep Binh, Thu Duc, HCMC",
+      };
+
+  sel.innerHTML = datasetKeys.map(k =>
+    `<option value="${k}">${labels[k] || k}</option>`
+  ).join("");
+
+  currentDataset = datasetKeys[0];
+  sel.value = currentDataset;
+  updateImages(currentDataset);
+  updateMeta(currentDataset);
+
+  sel.addEventListener("change", e => {
+    currentDataset = e.target.value;
+    updateImages(currentDataset);
+    updateMeta(currentDataset);
+  });
+}
+
+initWaterPage();
+</script>
+</body>
+</html>

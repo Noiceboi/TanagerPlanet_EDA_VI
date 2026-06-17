@@ -167,6 +167,9 @@ TEMPLATE = """\
             <li><a class="dropdown-item" href="lcai.html">LCAI</a></li>
           </ul>
         </li>
+        <li class="nav-item">
+          <a class="nav-link fw-semibold text-info" href="water_analysis.html">Water Analysis</a>
+        </li>
       </ul>
     </div>
   </div>
